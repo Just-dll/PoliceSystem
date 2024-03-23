@@ -1,0 +1,13 @@
+.admin-layout {
+    display: flex;
+    height: 100vh;
+  }
+  
+  app-admin-sidebar {
+    flex: 0 0 160px; /* Set the width of the sidebar */
+  }
+  
+  .admin-content {
+    flex: 1; /* Take up the remaining space */
+    padding: 20px;
+  }

@@ -1,0 +1,12 @@
+<div class="topnav">
+    <a href="/forecast">Home</a>
+    <a href="/assigments">Assigments</a>
+    
+    @if(isAuth) {
+        <a href="/profile" class="split">Profile</a>
+    }
+    @else {
+        <a href="/login" class="split">Login</a>
+    }
+    <input type="text" placeholder="Search..">
+  </div>
