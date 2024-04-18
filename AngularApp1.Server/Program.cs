@@ -14,11 +14,20 @@ using Google.Apis.Auth.AspNetCore3;
 using Google.Apis.Auth.OAuth2.Requests;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Options;
+using Microsoft.CodeAnalysis;
+using System.Text.Json.Serialization;
+using System.Text.Json;
+using AutoMapper;
+using BLL;
+using Microsoft.AspNetCore.Authentication;
+using BLL.Services;
+using BLL.Interfaces;
 
 namespace AngularApp1.Server
 {
     public class Program
     {
+
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
@@ -31,12 +40,28 @@ namespace AngularApp1.Server
                                  .RequireAuthenticatedUser()
                                  .Build();
                 config.Filters.Add(new AuthorizeFilter(policy));
+            }).AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
             });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddDbContext<PolicedatabaseContext>();
-            
+            builder.Services.AddScoped<IMapper, Mapper>(services =>
+            {
+                var myProfile = new AutomapperProfile();
+                var configuration = new MapperConfiguration(cfg => cfg.AddProfile(myProfile));
+
+                return new Mapper(configuration);
+            });
+            //builder.Services.AddAutoMapper(serv =>
+            //{
+            //    var myProfile = new AutomapperProfile();
+            //    var configuration = new MapperConfiguration(cfg => cfg.AddProfile(myProfile));
+            //    serv.AddProfile(myProfile);
+            //    serv.
+            //});
             builder.Services.AddIdentityApiEndpoints<User>()
                 .AddRoles<Position>()
                 .AddEntityFrameworkStores<PolicedatabaseContext>();
@@ -80,8 +105,9 @@ namespace AngularApp1.Server
                 options.ClientId = microsoftConfig.GetSection("ClientId").Value;
                 options.ClientSecret = microsoftConfig.GetSection("ClientSecret").Value;
             });
-
+            builder.Services.AddScoped<ITicketService, TicketService>();
             builder.Services.AddTransient<IEmailSender<User>, EmailSender>();
+            builder.Services.AddScoped<IDrivingLicenseService, DrivingLicenseService>();
             
             var app = builder.Build();
             
@@ -102,7 +128,12 @@ namespace AngularApp1.Server
             app.MapIdentityApi<User>();
             app.UseAuthorization();
             app.MapControllers();
-            app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            app.UseCors(builder =>
+            {
+                builder.AllowAnyOrigin();
+                builder.AllowAnyMethod();
+                builder.AllowAnyHeader();
+            });
             app.MapFallbackToFile("/index.html");
 
             app.Run();

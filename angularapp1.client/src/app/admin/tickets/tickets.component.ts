@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Ticket } from './ticket/ticket';
 import { TicketComponent } from './ticket/ticket.component';
+import { environment } from '../../../environments/environment.development';
 @Component({
   selector: 'app-tickets',
   templateUrl: './tickets.component.html',
@@ -17,7 +18,13 @@ export class TicketsComponent implements OnInit {
   }
 
   fetchTickets() {
-    this.http.get<Ticket[]>('http://localhost:7265/api/tickets')
+    const accessToken = localStorage.getItem('accessToken');
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${accessToken}`
+    });
+    
+    this.http.get<Ticket[]>(`${environment.baseApiUrl}/api/Tickets/personTickets`, { headers })
       .subscribe(
         (response) => {
           this.tickets = response;

@@ -13,7 +13,9 @@ const routes: Routes = [
     component: TicketsComponent
   },
   { path: 'drivinglicenses', loadChildren: () => import('./drivinglicenses/drivinglicenses.module').then(m => m.DrivinglicensesModule) },
-  { path: 'profile', loadChildren: () => import('./profile/profile.module').then(m => m.ProfileModule) }
+  { path: 'userprofile/:id', loadChildren: () => import('./user-profile/user-profile.module').then(m => m.UserProfileModule) },
+
+ // { path: 'profile', loadChildren: () => import('./profile/profile.module').then(m => m.ProfileModule) }
 ];
 
 @NgModule({

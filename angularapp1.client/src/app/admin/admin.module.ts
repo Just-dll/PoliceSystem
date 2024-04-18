@@ -5,21 +5,22 @@ import { AdminRoutingModule } from './admin-routing.module';
 import { AdminComponent } from './admin.component';
 import { TicketsComponent } from './tickets/tickets.component';
 import { TicketComponent } from './tickets/ticket/ticket.component';
-import { SidebarComponent } from './sidebar/sidebar.component';
 import { PrettyPipe } from '../pretty.pipe';
-
+import { DrivinglicenseComponent } from './drivinglicenses/drivinglicense/drivinglicense.component';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
     AdminComponent,
     TicketsComponent,
     TicketComponent,
-    SidebarComponent,
-    PrettyPipe
+    PrettyPipe,
+    DrivinglicenseComponent
   ],
   imports: [
     CommonModule,
-    AdminRoutingModule
+    AdminRoutingModule,
+    FormsModule
   ]
 })
 export class AdminModule { }

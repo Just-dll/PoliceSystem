@@ -15,20 +15,22 @@ public partial class Ticket
     [Column("id")]
     public int Id { get; set; }
 
+    [Required]
     [Column("report_id")]
     public int ReportId { get; set; }
 
+    [Required]
     [Column("violator_id")]
-    public int ViolatorId { get; set; }
+    public int ViolatorId { get; set; } 
 
     [Column("fine")]
-    public int? Fine { get; set; }
+    public decimal Fine { get; set; }
 
     [ForeignKey("ReportId")]
     [InverseProperty("Tickets")]
-    public virtual Report Report { get; set; } = null!;
+    public virtual Report? Report { get; set; }
 
     [ForeignKey("ViolatorId")]
     [InverseProperty("Tickets")]
-    public virtual User Violator { get; set; } = null!;
+    public virtual User? Violator { get; set; }
 }

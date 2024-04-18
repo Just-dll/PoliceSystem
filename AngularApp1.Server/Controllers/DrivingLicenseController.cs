@@ -1,5 +1,7 @@
 ﻿using AngularApp1.Server.Data;
 using AngularApp1.Server.Models;
+using BLL.Interfaces;
+using BLL.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -15,23 +17,22 @@ namespace AngularApp1.Server.Controllers
     public class DrivingLicenseController : ControllerBase
     {
         private readonly PolicedatabaseContext context;
+        private readonly IDrivingLicenseService drivingLicenseService;
+        private readonly UserManager<User> userManager;
 
-        public DrivingLicenseController(PolicedatabaseContext context)
+        public DrivingLicenseController(PolicedatabaseContext context, IDrivingLicenseService service, UserManager<User> userManager)
         {
             this.context = context;
+            this.drivingLicenseService = service;
+            this.userManager = userManager;
         }
 
-        [HttpGet("getdrivinglicense")]
+        [HttpGet("getmydrivinglicense")]
         public async Task<ActionResult<DrivingLicense>> GetPersonDrivingLicense()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            // Find the user in the database
-            var user = await context.Users.FindAsync(Convert.ToInt32(userId));
-
+            var user = await userManager.GetUserAsync(HttpContext.User);
             // Find the driving license associated with the user
-            var drivingLicense = await context.DrivingLicenses
-                .FirstOrDefaultAsync(dl => dl.DriverId == user.Id);
+            var drivingLicense = await drivingLicenseService.GetPersonDrivingLicence(user.Id);
 
             if (drivingLicense == null)
             {
@@ -43,12 +44,11 @@ namespace AngularApp1.Server.Controllers
         }
 
         [Authorize(Policy = "RequirePolicePosition")]
-        [HttpPost("RegisterDrivingLicense")]
-        public async Task<IActionResult> RegisterDrivingLicense(DrivingLicense drivingLicense)
+        [HttpPost("issueDrivingLicense")]
+        public async Task<IActionResult> IssueDrivingLicense(User user)
         {
-            var Dbdrivinglicense = context.DrivingLicenses.FirstOrDefault(d => d.DriverId == drivingLicense.DriverId);
-
-            if (Dbdrivinglicense != null)
+            var Dbdrivinglicense = context.DrivingLicenses.SingleOrDefault(d => d.DriverId == user.Id);
+            if(Dbdrivinglicense != null)
             {
                 if (Dbdrivinglicense.ExpirationDate > DateOnly.FromDateTime(DateTime.Now))
                 {
@@ -57,11 +57,16 @@ namespace AngularApp1.Server.Controllers
                 context.DrivingLicenses.Remove(Dbdrivinglicense);
             }
 
-            drivingLicense.IssueDate = DateOnly.FromDateTime(DateTime.Now);
-            drivingLicense.ExpirationDate = DateOnly.FromDateTime(DateTime.Now.AddYears(5));
+            var drivingLicense = new DrivingLicense
+            {
+                IssueDate = DateOnly.FromDateTime(DateTime.Now),
+                ExpirationDate = DateOnly.FromDateTime(DateTime.Now.AddYears(5)),
+                DriverId = user.Id,
+                Driver = user
+            };
 
-            await context.DrivingLicenses.AddAsync(drivingLicense);
-
+            user.DrivingLicense = drivingLicense;
+            context.Users.Update(user);
             try
             {
                 await context.SaveChangesAsync();

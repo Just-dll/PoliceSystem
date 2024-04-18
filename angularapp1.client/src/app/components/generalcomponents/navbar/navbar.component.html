@@ -1,9 +1,10 @@
 <div class="topnav">
-    <a href="/forecast">Home</a>
+    <a href="/home">Home</a>
     <a href="/assigments">Assigments</a>
     
     @if(isAuth) {
-        <a href="/profile" class="split">Profile</a>
+        <a href="/admin/tickets">Tickets</a>
+        <a href="/admin" class="split">Admin</a>
     }
     @else {
         <a href="/login" class="split">Login</a>

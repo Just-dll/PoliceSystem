@@ -11,3 +11,38 @@
     flex: 1; /* Take up the remaining space */
     padding: 20px;
   }
+  
+  .search-results {
+    position: absolute;
+    width: 100%;
+    max-height: 200px; /* Adjust the max-height according to your needs */
+    overflow-y: auto;
+    background-color: white;
+    border: 1px solid #ccc;
+    z-index: 1000; /* Ensure the dropdown appears above other elements */
+  }
+  
+  .search-result {
+    display: flex; /* Use flexbox */
+    align-items: center; /* Center items vertically */
+    padding: 10px; /* Adjust padding as needed */
+    cursor: pointer;
+    transition: background-color 0.3s; /* Add transition for smooth hover effect */
+  }
+  
+  .search-result:hover {
+    background-color: #f0f0f0; /* Change background color on hover */
+  }
+  
+  .search-result p {
+    margin: 0; /* Remove default margin */
+    margin-right: 10px; /* Adjust spacing between fields */
+    flex: 1; /* Expand to fill available space */
+    overflow: hidden; /* Hide overflow text */
+    white-space: nowrap; /* Prevent text from wrapping */
+    text-overflow: ellipsis; /* Display ellipsis for overflow text */
+  }
+  
+  
+  
+  

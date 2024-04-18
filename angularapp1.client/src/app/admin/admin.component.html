@@ -1,3 +1,15 @@
 <!-- <app-sidebar></app-sidebar> !-->
 {{ userJson }}
 <pre [innerHTML]="userEntity | pretty"></pre>
+@if(drivingLicense) {
+    <app-drivinglicense [license]="drivingLicense"></app-drivinglicense>
+}
+<input type="text" [(ngModel)]="searchTerm" placeholder="Search.." (input)="search()">
+<div class="search-results" *ngIf="showResults">
+  <div class="search-result" *ngFor="let result of searchResults" (click)="redirectToUserProfile(result.id)">
+    <!-- Display relevant information from each search result -->
+    <p>{{ result.name }}</p>
+    <p>{{ result.surname }}</p>
+    <p>{{ result.email }}</p>
+  </div>
+</div>

@@ -24,10 +24,3 @@ export class LoginComponent {
     });
   }
 }
-
-/*
-{
-  "email": "amerika@gmail.com",
-  "password": "Amerikaa1!"
-}
-*/

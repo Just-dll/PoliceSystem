@@ -3,12 +3,11 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { NavbarComponent } from './navbar/navbar.component';
+import { NavbarComponent } from './components/generalcomponents/navbar/navbar.component';
 import { HomeComponent } from './home/home.component';
 import { FormsModule } from '@angular/forms';
-import { FooterComponent } from './footer/footer.component';
+import { FooterComponent } from './components/generalcomponents/footer/footer.component';
 import { LoginComponent } from './auth/login/login.component';
-import { AdminpanelComponent } from './adminpanel/adminpanel.component';
 import { TicketComponent } from './admin/tickets/ticket/ticket.component';
 import { RegisterComponent } from './auth/register/register.component';
 import { ForgotComponent } from './auth/forgot/forgot.component';
@@ -19,7 +18,6 @@ import { PrettyPipe } from './pretty.pipe';
   declarations: [
     AppComponent,
     LoginComponent,
-    AdminpanelComponent,
     RegisterComponent,
     ForgotComponent,
     GrantedToDirective

@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment.development';
 
 @Component({
   selector: 'app-forgot',
@@ -15,7 +16,7 @@ export class ForgotComponent {
     console.log(this.email);
     // Here you can make an HTTP request to send the email
     // Replace 'your-api-endpoint' with your actual API endpoint
-    this.http.post('https://localhost:7265/forgotPassword', { email: this.email }).subscribe(
+    this.http.post(`${environment.baseApiUrl}/forgotPassword`, { email: this.email }).subscribe(
       (response) => {
         console.log('Email sent successfully', response);
         // Optionally, you can show a success message to the user

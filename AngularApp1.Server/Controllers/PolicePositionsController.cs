@@ -20,8 +20,8 @@ namespace AngularApp1.Server.Controllers
             _userManager = userManager;
         }
 
-        [HttpGet]
-        public IEnumerable<string> GetPositions()
+        [HttpGet("getMyPositions")]
+        public IEnumerable<string> GetMyPositions()
         {
             var user = HttpContext.User;
 

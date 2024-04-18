@@ -3,7 +3,6 @@ import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
 import { HttpClientModule } from '@angular/common/http';
 import { LoginComponent } from './auth/login/login.component';
-import { AdminpanelComponent } from './adminpanel/adminpanel.component';
 import { AuthGuard } from './auth.guard';
 import { WeatherforecastComponent } from './components/weatherforecast/weatherforecast.component';
 import { RegisterComponent } from './auth/register/register.component';

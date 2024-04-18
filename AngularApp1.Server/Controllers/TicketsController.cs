@@ -8,6 +8,13 @@ using Microsoft.EntityFrameworkCore;
 using AngularApp1.Server.Data;
 using AngularApp1.Server.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication;
+using BLL.Services;
+using BLL.Models;
+using BLL.Interfaces;
+using Microsoft.AspNetCore.Identity;
+using System.Runtime.InteropServices;
+using Microsoft.CodeAnalysis;
 
 namespace AngularApp1.Server.Controllers
 {
@@ -17,32 +24,77 @@ namespace AngularApp1.Server.Controllers
     public class TicketsController : ControllerBase
     {
         private readonly PolicedatabaseContext _context;
-
-        public TicketsController(PolicedatabaseContext context)
+        private readonly ITicketService ticketService;
+        private readonly UserManager<User> userManager;
+        public TicketsController(PolicedatabaseContext context, ITicketService service, UserManager<User> manager)
         {
             _context = context;
+            ticketService = service;
+            userManager = manager;
         }
+        //[HttpGet("myTickets")]
+        //public async Task<ActionResult<IEnumerable<TicketModel>>> GetMyTickets()
+        //{
+        //    try
+        //    {
+        //        var user = userManager.GetUserAsync(HttpContext.User);
+        //        var tickets = await ticketService.GetPersonTicketsAsync(user.Id);
+        //        if (tickets == null)
+        //        {
+        //            return NotFound();
+        //        }
+        //        return Ok(tickets);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+        //    }
+        //}
 
-        // GET: api/Tickets
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Ticket>>> GetTickets()
+        [HttpGet("personTickets")]
+        public async Task<ActionResult<IEnumerable<TicketModel>>> GetPersonTickets(int? personId)
         {
-            return await _context.Tickets.ToListAsync();
-        }
-
-        // GET: api/Tickets/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Ticket>> GetTicket(int id)
-        {
-            var ticket = await _context.Tickets.FindAsync(id);
-
-            if (ticket == null)
+            try
             {
-                return NotFound();
+                if (personId == null)
+                {
+                    var user = await userManager.GetUserAsync(HttpContext.User);
+                    personId = user.Id;
+                }
+                var tickets = await ticketService.GetPersonTicketsAsync(personId.Value);
+                if (tickets == null)
+                {
+                    return NotFound();
+                }
+                return Ok(tickets);
             }
-
-            return ticket;
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
         }
+
+
+        //// GET: api/Tickets
+        //[HttpGet]
+        //public async Task<ActionResult<IEnumerable<Ticket>>> GetTickets()
+        //{
+        //    return await _context.Tickets.ToListAsync();
+        //}
+
+        //// GET: api/Tickets/5
+        //[HttpGet("{id}")]
+        //public async Task<ActionResult<Ticket>> GetTicket(int id)
+        //{
+        //    var ticket = await _context.Tickets.FindAsync(id);
+
+        //    if (ticket == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    return ticket;
+        //}
 
         // PUT: api/Tickets/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -78,14 +130,20 @@ namespace AngularApp1.Server.Controllers
 
         // POST: api/Tickets
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+        [HttpPost("issueTicket")]
         [Authorize(Policy = "RequirePolicePosition")]
-        public async Task<ActionResult<Ticket>> PostTicket(Ticket ticket)
+        public async Task<ActionResult<Ticket>> PostTicket(TicketModel ticket)
         {
-            _context.Tickets.Add(ticket);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await ticketService.AddAsync(ticket);
 
-            return CreatedAtAction("GetTicket", ticket);
+                return CreatedAtAction(nameof(GetPersonTickets), ticket);
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
         }
 
         // DELETE: api/Tickets/5

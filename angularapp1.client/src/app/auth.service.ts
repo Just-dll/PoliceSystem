@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
+import { environment } from '../environments/environment.development';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -17,7 +19,7 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<boolean> {
-    return this.http.post<any>('https://localhost:7265/login', { email, password })
+    return this.http.post<any>(`${environment.baseApiUrl}/login`, { email, password })
       .pipe(
         map(response => {
           if (response && response.accessToken) {
