@@ -24,7 +24,7 @@ export class TicketsComponent implements OnInit {
       'Authorization': `Bearer ${accessToken}`
     });
     
-    this.http.get<Ticket[]>(`${environment.baseApiUrl}/api/Tickets/personTickets`, { headers })
+    this.http.get<Ticket[]>(`${environment.baseApiUrl}/api/Tickets/myTickets`, { headers })
       .subscribe(
         (response) => {
           this.tickets = response;

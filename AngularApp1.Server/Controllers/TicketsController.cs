@@ -15,6 +15,7 @@ using BLL.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using System.Runtime.InteropServices;
 using Microsoft.CodeAnalysis;
+using Hangfire;
 
 namespace AngularApp1.Server.Controllers
 {
@@ -32,36 +33,14 @@ namespace AngularApp1.Server.Controllers
             ticketService = service;
             userManager = manager;
         }
-        //[HttpGet("myTickets")]
-        //public async Task<ActionResult<IEnumerable<TicketModel>>> GetMyTickets()
-        //{
-        //    try
-        //    {
-        //        var user = userManager.GetUserAsync(HttpContext.User);
-        //        var tickets = await ticketService.GetPersonTicketsAsync(user.Id);
-        //        if (tickets == null)
-        //        {
-        //            return NotFound();
-        //        }
-        //        return Ok(tickets);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-        //    }
-        //}
 
-        [HttpGet("personTickets")]
-        public async Task<ActionResult<IEnumerable<TicketModel>>> GetPersonTickets(int? personId)
+        [HttpGet("myTickets")]
+        public async Task<ActionResult<IEnumerable<TicketModel>>> GetMyTickets()
         {
             try
             {
-                if (personId == null)
-                {
-                    var user = await userManager.GetUserAsync(HttpContext.User);
-                    personId = user.Id;
-                }
-                var tickets = await ticketService.GetPersonTicketsAsync(personId.Value);
+                var user = await userManager.GetUserAsync(HttpContext.User);
+                var tickets = await ticketService.GetPersonTicketsAsync(user.Id);
                 if (tickets == null)
                 {
                     return NotFound();
@@ -74,6 +53,24 @@ namespace AngularApp1.Server.Controllers
             }
         }
 
+        [Authorize(Policy = "RequirePolicePosition")]
+        [HttpGet("personTickets")]
+        public async Task<ActionResult<IEnumerable<PersonTicketModel>>> GetPersonTickets([FromQuery] int id)
+        {
+            try
+            {
+                var tickets = await ticketService.GetPersonTicketsAsync(id);
+                if (tickets == null)
+                {
+                    return NotFound();
+                }
+                return Ok(tickets);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
 
         //// GET: api/Tickets
         //[HttpGet]
@@ -82,19 +79,20 @@ namespace AngularApp1.Server.Controllers
         //    return await _context.Tickets.ToListAsync();
         //}
 
-        //// GET: api/Tickets/5
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<Ticket>> GetTicket(int id)
-        //{
-        //    var ticket = await _context.Tickets.FindAsync(id);
+        // GET: api/Tickets/5
+        [Authorize(Policy = "RequirePolicePosition")]
+        [HttpGet("{id}")]
+        public async Task<ActionResult<TicketModel>> GetTicket(int id)
+        {
+            var ticket = await ticketService.GetByIdAsync(id);
 
-        //    if (ticket == null)
-        //    {
-        //        return NotFound();
-        //    }
+            if (ticket == null)
+            {
+                return NotFound();
+            }
 
-        //    return ticket;
-        //}
+            return ticket;
+        }
 
         // PUT: api/Tickets/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -130,25 +128,27 @@ namespace AngularApp1.Server.Controllers
 
         // POST: api/Tickets
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost("issueTicket")]
         [Authorize(Policy = "RequirePolicePosition")]
+        [HttpPost("issueTicket")]
         public async Task<ActionResult<Ticket>> PostTicket(TicketModel ticket)
         {
             try
             {
-                await ticketService.AddAsync(ticket);
+                var issuer = await userManager.GetUserAsync(HttpContext.User);
+                ArgumentNullException.ThrowIfNull(issuer, nameof(issuer));
+                await ticketService.AddAsync(ticket, issuer);
 
                 return CreatedAtAction(nameof(GetPersonTickets), ticket);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
 
         // DELETE: api/Tickets/5
-        [HttpDelete("{id}")]
         [Authorize(Policy = "RequirePolicePosition")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTicket(int id)
         {
             var ticket = await _context.Tickets.FindAsync(id);
@@ -162,6 +162,13 @@ namespace AngularApp1.Server.Controllers
 
             return NoContent();
         }
+
+        [HttpDelete("payFine/{id}")]
+        public async Task<IActionResult> PayFine(int id)
+        {
+            return NoContent();
+        }
+
 
         private bool TicketExists(int id)
         {

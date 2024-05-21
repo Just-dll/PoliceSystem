@@ -1,17 +1,14 @@
 ﻿using BLL.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BLL.Interfaces
 {
-    public interface IService
+    public interface IService<T> where T : BaseModel
     {
-        Task<IEnumerable<TicketModel>> GetAllAsync();
-        Task<TicketModel> GetByIdAsync(int ticketId);
-        Task AddAsync(TicketModel ticket);
-        Task UpdateAsync(TicketModel ticket);
+        Task<T?> GetByIdAsync(int id);
+        Task AddAsync(T entity);
+        Task UpdateAsync(T entity);
+        Task UpdateAsync(int id, T entity);
+        Task DeleteAsync(int id);
+        Task DeleteAsync(T entity);
     }
 }

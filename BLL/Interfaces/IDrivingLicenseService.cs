@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace BLL.Interfaces
 {
-    public interface IDrivingLicenseService : IService
+    public interface IDrivingLicenseService : IService<DrivingLicenseModel>
     {
-        Task<DrivingLicenseModel?> GetPersonDrivingLicence(int personId);
+        Task<DrivingLicenseModel?> GetPersonDrivingLicense(int personId);
     }
 }

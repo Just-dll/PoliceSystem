@@ -1,21 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using AngularApp1.Server.Models;
 using Microsoft.EntityFrameworkCore;
-
-namespace AngularApp1.Server.Models;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using PoliceDAL.Entities;
 
 [Table("report")]
 [Index("IssuerId", Name = "IX_report_issuer_id")]
-public partial class Report
+public partial class Report : BaseEntity
 {
-    [Key]
-    [Column("id")]
-    public int Id { get; set; }
-
-    [Column("date_of_issuing", TypeName = "smalldatetime")]
-    public DateTime DateOfIssuing { get; set; }
+    [Column("date_of_issuing")]
+    public DateOnly DateOfIssuing { get; set; }
 
     [Column("report_file_location")]
     [StringLength(250)]
@@ -28,6 +22,17 @@ public partial class Report
     [Column("description")]
     public string? Description { get; set; }
 
+    [Column("case_file_id")]
+    public int CaseFileId { get; set; } 
+
+    [ForeignKey("IssuerId")]
+    [InverseProperty("Reports")]
+    public virtual User Issuer { get; set; } = null!;
+
     [InverseProperty("Report")]
     public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
+
+    [ForeignKey("CaseFileId")]
+    [InverseProperty("Reports")] 
+    public virtual CaseFile CaseFile { get; set; } = null!;
 }

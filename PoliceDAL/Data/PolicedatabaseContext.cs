@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using AngularApp1.Server.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using PoliceDAL.Entities;
 
 namespace AngularApp1.Server.Data;
 
@@ -25,9 +26,13 @@ public partial class PolicedatabaseContext : IdentityDbContext<User, Position, i
 
     public virtual DbSet<Ticket> Tickets { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=policedatabase;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False");
+    public virtual DbSet<CaseFile> CaseFiles { get; set; }
+
+    public virtual DbSet<CaseFileType> CaseFileTypes { get; set; }
+
+    public virtual DbSet<Warrant> Warrants { get; set; }
+
+    public virtual DbSet<Decision> Decisions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -41,6 +46,24 @@ public partial class PolicedatabaseContext : IdentityDbContext<User, Position, i
                 .HasConstraintName("FK_driver_id");
         });
 
+        modelBuilder.Entity<CaseFile>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_case_file_3002032");
+
+            entity.HasOne(c => c.CaseFileType).WithMany(ct => ct.CaseFiles)
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK_case_caseType_");
+
+            entity.HasOne(c => c.Prosecutor).WithMany(p => p.CaseFiles)
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK_Prosecutor_case_file");
+
+        });
+
+        modelBuilder.Entity<CaseFileType>(entity =>
+        {
+            entity.HasKey(cft => cft.Id).HasName("PK_case_file_type");
+        });
         modelBuilder.Entity<RegisteredCar>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__register__3213E83F2999EE23");
@@ -55,6 +78,13 @@ public partial class PolicedatabaseContext : IdentityDbContext<User, Position, i
             entity.HasKey(e => e.Id).HasName("PK__report__3213E83F90184F01");
 
             entity.Property(e => e.ReportFileLocation).IsFixedLength();
+
+            entity.HasOne(e => e.Issuer).WithMany(p => p.Reports)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Issuer_Report_ref");
+
+            entity.HasOne(r => r.CaseFile).WithMany(cf => cf.Reports)
+                .OnDelete(DeleteBehavior.NoAction);
         });
 
         modelBuilder.Entity<Ticket>(entity =>
@@ -73,6 +103,28 @@ public partial class PolicedatabaseContext : IdentityDbContext<User, Position, i
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__user__3213E83F956FB020");
+        });
+
+        modelBuilder.Entity<Warrant>(entity =>
+        {
+            entity.HasOne(e => e.Suspect).WithMany(s => s.WarrantsOn)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.NoAction);
+
+            entity.HasOne(e => e.CaseFile).WithMany(cf => cf.Warrants)
+            .IsRequired()
+            .OnDelete(deleteBehavior: DeleteBehavior.NoAction);
+
+        });
+
+        modelBuilder.Entity<Decision>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.HasOne(e => e.Judge).WithMany(j => j.Decisions)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.NoAction);
+
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -3,12 +3,15 @@
     <h3>Ticket ID: {{ ticket.id }}</h3>
   </div>
   <div class="card-body">
+    <div class="button-wrapper">
+      <button (click)="payFine()">Pay Fine</button>
+    </div>
     <p>Description: {{ ticket.description }}</p>
     <p>Fine Amount: ${{ ticket.fine.toFixed(2) }}</p>
     <p>Issue Time: {{ ticket.issueTime | date:'medium' }}</p>
-    @if (ticket.violatorName) {
-      <p>Violator Name: {{ ticket.violatorName ? ticket.violatorName : 'Not provided' }}</p>
-      <p>Violator Surname: {{ ticket.violatorSurname ? ticket.violatorSurname : 'Not provided' }}</p>
-    }
+    <div *ngIf="ticket.violatorName">
+      <p>Violator Name: {{ ticket.violatorName || 'Not provided' }}</p>
+      <p>Violator Surname: {{ ticket.violatorSurname || 'Not provided' }}</p>
+    </div>
   </div>
 </div>

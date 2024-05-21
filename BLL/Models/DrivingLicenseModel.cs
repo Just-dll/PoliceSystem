@@ -7,11 +7,10 @@ using System.Threading.Tasks;
 
 namespace BLL.Models
 {
-    public class DrivingLicenseModel
+    public class DrivingLicenseModel : BaseModel
     {
-        public int Id { get; set; }
         public int DriverId { get; set; }
-        public DateOnly IssueDate { get; set; }
-        public DateOnly ExpirationDate { get; set; }
+        public DateOnly IssueDate { get; internal set; }
+        public DateOnly ExpirationDate { get; internal set; }
     }
 }

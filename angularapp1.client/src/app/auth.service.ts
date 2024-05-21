@@ -11,8 +11,6 @@ export class AuthService {
   private loggedIn = new BehaviorSubject<boolean>(false);
 
   constructor(private http: HttpClient) {
-    
-
     // Check if the user is already logged in from a previous session
     this.checkToken();
     localStorage.clear();

@@ -10,6 +10,8 @@ import { environment } from '../../../environments/environment.development';
 })
 export class UserProfileComponent implements OnInit {
   userProfile: any;
+  userTickets: any;
+  userDrivingLicense: any;
   constructor(
     private route: ActivatedRoute,
     private http: HttpClient
@@ -19,6 +21,8 @@ export class UserProfileComponent implements OnInit {
     const Qid = this.route.snapshot.paramMap.get('id') ?? 0; // default value 0
     const id = +Qid;
     this.getUserProfile(id);
+    this.getUserDrivingLicense(id);
+    this.getUserTickets(id);
   }
 
   getUserProfile(id: number): void {
@@ -38,5 +42,38 @@ export class UserProfileComponent implements OnInit {
         }
       );
   }
+  getUserTickets(id: number): void {
+    const accessToken = localStorage.getItem('accessToken');
 
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${accessToken}`
+    });
+
+    this.http.get(`${environment.baseApiUrl}/api/Tickets/personTickets?id=${id}`, { headers })
+      .subscribe(
+        (data) => {
+          this.userTickets = data;
+        },
+        (error) => {
+          console.error('Error fetching user data:', error);
+        }
+      );
+  }
+  getUserDrivingLicense(id: number): void {
+    const accessToken = localStorage.getItem('accessToken');
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${accessToken}`
+    });
+
+    this.http.get(`${environment.baseApiUrl}/api/DrivingLicense/GetPersonDrivingLicense?id=${id}`, { headers })
+      .subscribe(
+        (data) => {
+          this.userDrivingLicense = data;
+        },
+        (error) => {
+          console.error('Error fetching user data:', error);
+        }
+      );
+  }
 }

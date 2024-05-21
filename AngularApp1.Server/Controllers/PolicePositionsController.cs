@@ -50,7 +50,7 @@ namespace AngularApp1.Server.Controllers
                 return BadRequest("User already has the Policeman role.");
             }
 
-            // Add the Policeman role to the user
+            // AddAsync the Policeman role to the user
             var result = await _userManager.AddToRoleAsync(user, "Policeman");
 
             if (!result.Succeeded)
@@ -59,6 +59,37 @@ namespace AngularApp1.Server.Controllers
             }
 
             return Ok("User promoted to Policeman role successfully.");
+
+
+        }
+
+        [Authorize(Policy = "RequirePoliceAdminPosition")]
+        [HttpPatch("prosecutor_promition")]
+        public async Task<ActionResult> ProsecutorPromotion(int id)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var isPolicemanRole = await _userManager.IsInRoleAsync(user, "Prosecutor");
+
+            if (isPolicemanRole)
+            {
+                return BadRequest("User already has the Prosecutor role.");
+            }
+
+            // AddAsync the Policeman role to the user
+            var result = await _userManager.AddToRoleAsync(user, "Prosecutor");
+
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
+
+            return Ok("User promoted to Prosecutor role successfully.");
 
 
         }

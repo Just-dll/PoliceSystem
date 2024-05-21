@@ -26,7 +26,7 @@ namespace AngularApp1.Server.Services
         {
             try
             {
-                var mail = new MailMessage("PoliceServiceApp@gmail.com", email)
+                var mail = new MailMessage("PoliceProject@gmail.com", email)
                 {
                     IsBodyHtml = true,
                     Subject = subject,

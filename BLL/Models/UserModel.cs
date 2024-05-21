@@ -9,12 +9,11 @@ namespace BLL.Models
     public class UserModel
     {
         public int Id { get; set; }
-        public int DrivingLicenseId { get; set; }
         public string? Name { get; set; }
         public string? Surname { get; set; }
         public string? Email { get; set; }
         public string? PhoneNumber { get; set; }
-        public ICollection<int>? TicketIds { get; set; }
+        public ICollection<PersonTicketModel> Tickets { get; set; } = [];
 
     }
 }
