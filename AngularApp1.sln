@@ -18,8 +18,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BLL", "BLL\BLL.csproj", "{F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataAccessTests", "DataAccessTests\DataAccessTests.csproj", "{AE0393A0-1F67-4337-A31A-3C1C6782A747}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AngularApp1.EventBus", "EventBus\AngularApp1.EventBus\AngularApp1.EventBus.csproj", "{48C0060F-34FC-4837-9DC3-BA3FCD572E6F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,10 +46,6 @@ Global
 		{AE0393A0-1F67-4337-A31A-3C1C6782A747}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AE0393A0-1F67-4337-A31A-3C1C6782A747}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AE0393A0-1F67-4337-A31A-3C1C6782A747}.Release|Any CPU.Build.0 = Release|Any CPU
-		{48C0060F-34FC-4837-9DC3-BA3FCD572E6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{48C0060F-34FC-4837-9DC3-BA3FCD572E6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{48C0060F-34FC-4837-9DC3-BA3FCD572E6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{48C0060F-34FC-4837-9DC3-BA3FCD572E6F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
