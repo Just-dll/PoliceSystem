@@ -12,6 +12,8 @@
     <PackageReference Include="Hangfire" Version="1.8.12" />
     <PackageReference Include="Hangfire.Core" Version="1.8.12" />
     <PackageReference Include="Hangfire.SqlServer" Version="1.8.12" />
+    <PackageReference Include="MediatR" Version="12.2.0" />
+    <PackageReference Include="RabbitMQ.Client" Version="6.8.1" />
   </ItemGroup>
 
   <ItemGroup>

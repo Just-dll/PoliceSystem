@@ -9,7 +9,7 @@ using System.Net;
 
 namespace AngularApp1.Server.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Prosecutor, Judge")]
     [Route("api/[controller]")]
     [ApiController]
     public class CaseController : ControllerBase

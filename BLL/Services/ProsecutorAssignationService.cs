@@ -15,13 +15,16 @@ namespace BLL.Services
     public class ProsecutorAssignationService 
     {
         private readonly UserManager<User> _userManager;
+        private readonly NotificationService notificationService;
         private readonly IUnitOfWork unitOfWork;
         private readonly IMapper mapper;
-        public ProsecutorAssignationService(UserManager<User> userManager, IUnitOfWork unitOfWork, IMapper mapper)
+        public ProsecutorAssignationService(UserManager<User> userManager, IUnitOfWork unitOfWork, 
+            IMapper mapper, NotificationService notificationService)
         {
             _userManager = userManager;
             this.unitOfWork = unitOfWork;
             this.mapper = mapper;
+            this.notificationService = notificationService;
         }
 
         public async Task AssignProsecutor(int casefileId)
@@ -34,8 +37,11 @@ namespace BLL.Services
             var randomProsecutor = availableProsecutors[randomIndex];
             caseFile.ProsecutorId = randomProsecutor.Id;
             await unitOfWork.CaseFileRepository.Update(caseFile);
-
+            var caseFileExchange = $"caseFile_{casefileId}";
+            await notificationService.ConnectToExchange($"user_{randomProsecutor.Id}", caseFileExchange);
+            await notificationService.Publish(caseFileExchange, $"Prosecutor {randomProsecutor.UserName} has been assigned to case file ${casefileId}");
             // notify prosecutor about assignation to casefile
+
         }
     }
 }

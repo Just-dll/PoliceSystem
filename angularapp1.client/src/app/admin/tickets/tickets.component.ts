@@ -18,13 +18,8 @@ export class TicketsComponent implements OnInit {
   }
 
   fetchTickets() {
-    const accessToken = localStorage.getItem('accessToken');
-
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${accessToken}`
-    });
     
-    this.http.get<Ticket[]>(`${environment.baseApiUrl}/api/Tickets/myTickets`, { headers })
+    this.http.get<Ticket[]>(`${environment.baseApiUrl}/api/Tickets/myTickets`)
       .subscribe(
         (response) => {
           this.tickets = response;

@@ -53,7 +53,7 @@ namespace AngularApp1.Server.Controllers
             }
         }
 
-        [Authorize(Policy = "RequirePolicePosition")]
+        [Authorize(Roles = "Policeman, Prosecutor, Judge")]
         [HttpGet("personTickets")]
         public async Task<ActionResult<IEnumerable<PersonTicketModel>>> GetPersonTickets([FromQuery] int id)
         {
@@ -80,7 +80,7 @@ namespace AngularApp1.Server.Controllers
         //}
 
         // GET: api/Tickets/5
-        [Authorize(Policy = "RequirePolicePosition")]
+        [Authorize(Roles = "Policeman, Prosecutor, Judge")]
         [HttpGet("{id}")]
         public async Task<ActionResult<TicketModel>> GetTicket(int id)
         {
@@ -96,7 +96,7 @@ namespace AngularApp1.Server.Controllers
 
         // PUT: api/Tickets/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [Authorize(Policy = "RequirePolicePosition")]
+        [Authorize(Roles = "Policeman, Prosecutor")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTicket(int id, Ticket ticket)
         {
@@ -128,7 +128,7 @@ namespace AngularApp1.Server.Controllers
 
         // POST: api/Tickets
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [Authorize(Policy = "RequirePolicePosition")]
+        [Authorize(Roles = "Policeman")]
         [HttpPost("issueTicket")]
         public async Task<ActionResult<Ticket>> PostTicket(TicketModel ticket)
         {
@@ -147,7 +147,7 @@ namespace AngularApp1.Server.Controllers
         }
 
         // DELETE: api/Tickets/5
-        [Authorize(Policy = "RequirePolicePosition")]
+        [Authorize(Roles = "Policeman, Prosecutor, Judge")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTicket(int id)
         {

@@ -11,19 +11,19 @@ export class AuthService {
   private loggedIn = new BehaviorSubject<boolean>(false);
 
   constructor(private http: HttpClient) {
-    // Check if the user is already logged in from a previous session
     this.checkToken();
-    localStorage.clear();
   }
 
   login(email: string, password: string): Observable<boolean> {
-    return this.http.post<any>(`${environment.baseApiUrl}/login`, { email, password })
+    return this.http.post<any>(`${environment.baseApiUrl}/login?useCookies=true`, { email, password }, { observe: 'response' })
       .pipe(
         map(response => {
-          if (response && response.accessToken) {
-            this.setSession(response);
+          if(response) {
+            this.loggedIn.next(true);
             return true;
-          } else {
+          }
+          else {
+            console.log(response);
             this.loggedIn.next(false);
             return false;
           }
@@ -38,19 +38,17 @@ export class AuthService {
 
   logout(): void {
     this.loggedIn.next(false);
-    localStorage.clear();
+    this.http.post(`${environment.baseApiUrl}/logout`, {}).subscribe(() => {
+      // Additional cleanup if needed
+    });
   }
 
   isLoggedIn(): Observable<boolean> {
+    this.checkToken()
     return this.loggedIn.asObservable();
   }
 
   private setSession(authResult: any): void {
-    localStorage.setItem('loggedIn', 'true');
-    localStorage.setItem('accessToken', authResult.accessToken);
-    localStorage.setItem('expiresIn', authResult.expiresIn);
-    localStorage.setItem('refreshToken', authResult.refreshToken);
-    localStorage.setItem('tokenType', authResult.tokenType);
     this.loggedIn.next(true);
     // Calculate token expiration time and set a timer to refresh the token if needed
     const expiresIn = authResult.expiresIn * 1000; // Convert expiresIn to milliseconds
@@ -59,39 +57,47 @@ export class AuthService {
     }, expiresIn - 60000); // Refresh the token 1 minute before it expires
   }
 
-  private checkToken(): void {
-    const accessToken = localStorage.getItem('accessToken');
-    if (accessToken) {
-      this.loggedIn.next(true);
-      const expiresIn = Number(localStorage.getItem('expiresIn'));
-      const now = Date.now();
-      if (expiresIn && expiresIn - now < 60000) { // Check if token expires in less than 1 minute
-        this.refreshToken().subscribe();
-      }
-    }
+  private checkToken(): boolean {
+    var state = false;
+    this.http.get(`${environment.baseApiUrl}/api/Person/getMyself`)
+      .subscribe(
+        data => {
+          if (data) {
+            this.loggedIn.next(true);
+            state = true;
+            console.log(data);
+            return true;
+          } else {
+            this.loggedIn.next(false);
+            return false;
+          }
+        },
+        error => {
+          console.error('Error fetching user data:', error);
+          this.loggedIn.next(false);
+        }
+      );
+      return state;
   }
 
+
   private refreshToken(): Observable<any> {
-    const refreshToken = localStorage.getItem('refreshToken');
-    if (!refreshToken) {
-      console.error('Refresh token not found.');
-      return of(null);
-    }
-    return this.http.post<any>('https://localhost:7265/refresh', { refreshToken })
+    return this.http.post<any>(`${environment.baseApiUrl}/refresh`, {})
       .pipe(
         switchMap(response => {
           if (response && response.accessToken) {
             this.setSession(response);
+            return of(true);
           } else {
             console.error('Failed to refresh token.');
             this.logout();
+            return of(false);
           }
-          return of(null);
         }),
         catchError(error => {
           console.error('Error occurred during token refresh:', error);
           this.logout();
-          return of(null);
+          return of(false);
         })
       );
   }

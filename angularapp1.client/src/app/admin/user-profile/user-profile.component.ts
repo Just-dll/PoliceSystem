@@ -26,13 +26,7 @@ export class UserProfileComponent implements OnInit {
   }
 
   getUserProfile(id: number): void {
-    const accessToken = localStorage.getItem('accessToken');
-
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${accessToken}`
-    });
-
-    this.http.get(`${environment.baseApiUrl}/api/Person/getUser?id=${id}`, { headers })
+    this.http.get(`${environment.baseApiUrl}/api/Person/getUser?id=${id}`)
       .subscribe(
         (data) => {
           this.userProfile = data;
@@ -43,13 +37,7 @@ export class UserProfileComponent implements OnInit {
       );
   }
   getUserTickets(id: number): void {
-    const accessToken = localStorage.getItem('accessToken');
-
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${accessToken}`
-    });
-
-    this.http.get(`${environment.baseApiUrl}/api/Tickets/personTickets?id=${id}`, { headers })
+    this.http.get(`${environment.baseApiUrl}/api/Tickets/personTickets?id=${id}`)
       .subscribe(
         (data) => {
           this.userTickets = data;
@@ -60,13 +48,7 @@ export class UserProfileComponent implements OnInit {
       );
   }
   getUserDrivingLicense(id: number): void {
-    const accessToken = localStorage.getItem('accessToken');
-
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${accessToken}`
-    });
-
-    this.http.get(`${environment.baseApiUrl}/api/DrivingLicense/GetPersonDrivingLicense?id=${id}`, { headers })
+    this.http.get(`${environment.baseApiUrl}/api/DrivingLicense/GetPersonDrivingLicense?id=${id}`)
       .subscribe(
         (data) => {
           this.userDrivingLicense = data;

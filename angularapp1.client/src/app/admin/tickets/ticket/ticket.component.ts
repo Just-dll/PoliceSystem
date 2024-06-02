@@ -19,14 +19,8 @@ export class TicketComponent {
   }
 
   sendPaymentRequest(ticketId: number): void {
-    const accessToken = localStorage.getItem('accessToken');
-
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${accessToken}`
-    });
-
     console.log(ticketId)
-    this.http.delete(`${environment.baseApiUrl}/api/Tickets/payFine/${ticketId}`, { headers })
+    this.http.delete(`${environment.baseApiUrl}/api/Tickets/payFine/${ticketId}`, { withCredentials: true })
       .subscribe(
         (error) => {
           console.error('Error fetching user data:', error);

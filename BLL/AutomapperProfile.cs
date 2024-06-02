@@ -48,12 +48,14 @@ namespace BLL
                 .ForMember(ptm => ptm.IssueTime, t => t.MapFrom(x => x.Report.DateOfIssuing));
 
             CreateMap<Report, ReportModel>()
+                .ForMember(rm => rm.Description, r => r.MapFrom(x => x.Description))
                 .ForMember(rm => rm.DateOfReport, r => r.MapFrom(x => x.DateOfIssuing))
                 .ForMember(rm => rm.ReportedLocation, r => r.MapFrom(x => x.ReportFileLocation))
                 .ForMember(rm => rm.ReporterId, r => r.MapFrom(x => x.IssuerId))
                 .ReverseMap();
 
             CreateMap<Warrant, WarrantModel>();
+
 
         }
 

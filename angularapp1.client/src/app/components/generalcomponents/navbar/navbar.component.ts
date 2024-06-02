@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../../auth.service';
+import { RoleService } from '../../../role.service';
+import { Roles } from '../../../roles';
+
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
@@ -8,12 +11,18 @@ import { AuthService } from '../../../auth.service';
 })
 export class NavbarComponent implements OnInit {
   isAuth: boolean = false;
+  userRoles: string[] = [];
+  Roles = Roles;
 
-  constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService, public roleService: RoleService) { }
 
   ngOnInit(): void {
     this.authService.isLoggedIn().subscribe((isAuthenticated: boolean) => {
       this.isAuth = isAuthenticated;
     });
+    this.roleService.getUserRoles().subscribe((things: string[]) => {
+      this.userRoles = things;
+      console.log(things);
+    })
   }
 }

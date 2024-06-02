@@ -21,11 +21,14 @@ namespace BLL.Services
         private readonly IMapper mapper;
         private readonly IUnitOfWork unitOfWork;
         private readonly ProsecutorAssignationService prosecutorAssignationService;
-        public TicketService(IMapper mapper, IUnitOfWork unitOfWork, ProsecutorAssignationService prosecutorAssignationService)
+        private readonly NotificationService notificationService;
+        public TicketService(IMapper mapper, IUnitOfWork unitOfWork, 
+            ProsecutorAssignationService prosecutorAssignationService, NotificationService notificationService)
         {
             this.mapper = mapper;
             this.unitOfWork = unitOfWork;
             this.prosecutorAssignationService = prosecutorAssignationService;
+            this.notificationService = notificationService;
         }
 
         public async Task AddAsync(TicketModel ticket, User issuer)
@@ -49,9 +52,11 @@ namespace BLL.Services
                 Fine = ticket.Fine,
                 ViolatorId = ticket.ViolatorId,
             };
-
+            notificationService.CreateExchange($"caseFile_{caseFile.Id}");
+            await notificationService.ConnectToExchange($"user_{ticket.ViolatorId}", $"caseFile_{caseFile.Id}");
+            await notificationService.Publish($"caseFile_{caseFile.Id}", "Ticket issued");
             await unitOfWork.TicketRepository.AddAsync(ticketNew);
-            BackgroundJob.Schedule(() => CheckPayment(caseFile.Id), TimeSpan.FromMinutes(1));
+            BackgroundJob.Schedule(() => CheckPayment(caseFile.Id), TimeSpan.FromSeconds(30));
             ticket.Id = ticketNew.Id;
         }
 

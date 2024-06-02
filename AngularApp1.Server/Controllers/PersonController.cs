@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace AngularApp1.Server.Controllers
 {
-    [Authorize(Policy = "RequirePolicePosition")]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class PersonController : ControllerBase
@@ -27,7 +27,6 @@ namespace AngularApp1.Server.Controllers
             this.manager = manager;
         }
 
-        [Authorize]
         [HttpGet("getMyself")]
         public async Task<ActionResult<User>> getMyself()
         {
@@ -41,7 +40,6 @@ namespace AngularApp1.Server.Controllers
             return Ok(user);
         }
 
-        [Authorize]
         [HttpGet("ShareMyself")]
         public async Task<ActionResult<string?>> shareMyself()
         {
@@ -49,6 +47,7 @@ namespace AngularApp1.Server.Controllers
             return $"https://localhost:7265/api/Person/getUser?id={user.Id}";
         }
 
+        [Authorize(Policy = "RequirePolicePosition")]
         [HttpGet("getUser")]
         public async Task<ActionResult<User>> getPerson([FromQuery] int id)
         {
@@ -62,6 +61,7 @@ namespace AngularApp1.Server.Controllers
             return Ok(user);
         }
 
+        [Authorize(Roles = "Prosecutor, Policeman, Judge")]
         [HttpGet("SearchByQuery")]
         public async Task<ActionResult<IList<UserSearchModel>>> GetUsersByQuery([FromQuery] string query)
         {
@@ -82,10 +82,5 @@ namespace AngularApp1.Server.Controllers
             return filteredUsers;
         }
 
-        //[HttpPost("personDatabaseInsertion")]
-        //public async Task<ActionResult> RegisterPerson(RegisterRequest request)
-        //{
-
-        //}
     }
 }

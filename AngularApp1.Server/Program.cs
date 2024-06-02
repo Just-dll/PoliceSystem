@@ -27,12 +27,15 @@ using PoliceDAL.Interfaces;
 using PoliceDAL.Repositories;
 using Hangfire;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Authentication.BearerToken;
+using RabbitMQ.Client;
+using AngularApp1.Server.Extensions;
 
 namespace AngularApp1.Server
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -68,51 +71,71 @@ namespace AngularApp1.Server
             builder.Services.AddIdentityApiEndpoints<User>()
                 .AddRoles<Position>()
                 .AddEntityFrameworkStores<PolicedatabaseContext>();
-            builder.Services.AddAuthorization((options) =>
-            {
-                options.AddPolicy("RequirePolicePosition", options =>
+
+            // Use AddAuthorizationBuilder to configure authorization policies
+            builder.Services.AddAuthorizationBuilder()
+                .AddPolicy("RequirePolicePosition", policy =>
                 {
-                    options.RequireRole("Policeman");
-                    options.RequireAuthenticatedUser();
-                });
-                options.AddPolicy("RequirePoliceAdminPosition", options =>
+                    policy.RequireRole("Policeman");
+                    policy.RequireAuthenticatedUser();
+                })
+                .AddPolicy("RequirePoliceAdminPosition", policy =>
                 {
-                    options.RequireRole("Policeman");
-                    options.RequireRole("OrganizationAdministrator");
-                    options.RequireAuthenticatedUser();
+                    policy.RequireRole("Policeman", "OrganizationAdministrator");
+                    policy.RequireAuthenticatedUser();
                 });
-            });
 
             var smtpConfig = config.GetSection("Mail");
             var smtpCred = smtpConfig.GetSection("credential");
             var smtpConn = smtpConfig.GetSection("smtp");
-            builder.Services.AddSingleton(new SmtpClient(smtpConn.GetSection("host").Value, int.Parse(smtpConn.GetSection("port").Value))
+            builder.Services.AddSingleton(new SmtpClient(smtpConn["host"], int.Parse(smtpConn["port"]))
             {
-                Credentials = new NetworkCredential(smtpCred.GetSection("userName").Value, smtpCred.GetSection("password").Value),
+                Credentials = new NetworkCredential(smtpCred["userName"], smtpCred["password"]),
                 EnableSsl = true
             });
 
             IConfigurationSection authSection = config.GetSection("Authentication");
             builder.Services.AddAuthentication()
-            .AddCookie()
+            .AddCookie(options =>
+            {
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+                options.SlidingExpiration = true;
+                options.AccessDeniedPath = "/Forbidden/";
+                options.LoginPath = "/";
+            })
             .AddGoogle(options =>
             {
                 options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 var googleConfig = authSection.GetSection("Google");
-                options.ClientId = googleConfig.GetSection("ClientId").Value;
-                options.ClientSecret = googleConfig.GetSection("ClientSecret").Value;
+                options.ClientId = googleConfig["ClientId"];
+                options.ClientSecret = googleConfig["ClientSecret"];
                 options.Scope.Add("openid");
             })
             .AddMicrosoftAccount(options =>
             {
                 var microsoftConfig = authSection.GetSection("Microsoft");
-                options.ClientId = microsoftConfig.GetSection("ClientId").Value;
-                options.ClientSecret = microsoftConfig.GetSection("ClientSecret").Value;
+                options.ClientId = microsoftConfig["ClientId"];
+                options.ClientSecret = microsoftConfig["ClientSecret"];
             });
 
             builder.Services.AddScoped<ITicketService, TicketService>();
             builder.Services.AddTransient<IEmailSender<User>, EmailSender>();
             builder.Services.AddScoped<IDrivingLicenseService, DrivingLicenseService>();
+            builder.Services.AddSingleton<IConnection>(serviceProvider =>
+            {
+                var notifConfig = config.GetSection("NotificationServer");
+                var factory = new ConnectionFactory()
+                {
+                    HostName = notifConfig["Hostname"],
+                    Port = int.Parse(notifConfig["Port"]),
+                    UserName = notifConfig["UserName"],
+                    Password = notifConfig["Password"]
+                };
+                return factory.CreateConnection();
+            });
+
+            // Register NotificationService as transient
+            builder.Services.AddTransient<NotificationService>();
             builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
             builder.Services.AddTransient<ICaseFileService, CaseFileService>();
             builder.Services.AddTransient<ProsecutorAssignationService>();
@@ -128,7 +151,8 @@ namespace AngularApp1.Server
                 {
                     builder.WithOrigins("https://localhost:4200", "http://localhost:4200")
                            .AllowAnyMethod()
-                           .AllowAnyHeader();
+                           .AllowAnyHeader()
+                           .AllowCredentials();
                 });
             });
 
@@ -145,19 +169,24 @@ namespace AngularApp1.Server
             }
 
             app.UseHttpsRedirection();
-
+            app.UseCookiePolicy();
             app.UseAuthentication();
 
             app.MapIdentityApi<User>();
-            
 
             // Apply the CORS policy
             app.UseCors("AllowAllOrigins");
 
             app.UseAuthorization();
             app.MapControllers();
-            
+
             app.MapFallbackToFile("/index.html");
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                await RoleSeedExtension.SeedRolesAsync(services);
+            }
 
             app.Run();
         }

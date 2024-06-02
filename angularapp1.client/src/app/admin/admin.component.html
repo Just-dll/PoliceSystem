@@ -1,5 +1,5 @@
 <!-- <app-sidebar></app-sidebar> !-->
-<pre [innerHTML]="userEntity | pretty"></pre>
+<pre><code>{{ userEntity | json }}</code></pre>
 @if(drivingLicense) {
     <app-drivinglicense [license]="drivingLicense"></app-drivinglicense>
 }

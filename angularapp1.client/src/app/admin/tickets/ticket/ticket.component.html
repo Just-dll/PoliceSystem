@@ -8,7 +8,7 @@
     </div>
     <p>Description: {{ ticket.description }}</p>
     <p>Fine Amount: ${{ ticket.fine.toFixed(2) }}</p>
-    <p>Issue Time: {{ ticket.issueTime | date:'medium' }}</p>
+    <p>Issue Date: {{ ticket.issueTime | date:'mediumDate' }}</p>
     <div *ngIf="ticket.violatorName">
       <p>Violator Name: {{ ticket.violatorName || 'Not provided' }}</p>
       <p>Violator Surname: {{ ticket.violatorSurname || 'Not provided' }}</p>

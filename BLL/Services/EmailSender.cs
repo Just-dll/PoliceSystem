@@ -8,7 +8,7 @@ namespace AngularApp1.Server.Services
     public class EmailSender : IEmailSender<User>
     {
         private readonly SmtpClient _smtpClient;
-
+        // Rabbitmq or kafka connection?
         public EmailSender(SmtpClient smtpClient)
         {
             this._smtpClient = smtpClient;
