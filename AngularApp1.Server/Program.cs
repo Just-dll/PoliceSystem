@@ -39,7 +39,6 @@ namespace AngularApp1.Server
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // AddAsync services to the container.
             var config = builder.Configuration;
             builder.Services.AddControllers(config =>
             {
@@ -134,7 +133,6 @@ namespace AngularApp1.Server
                 return factory.CreateConnection();
             });
 
-            // Register NotificationService as transient
             builder.Services.AddTransient<NotificationService>();
             builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
             builder.Services.AddTransient<ICaseFileService, CaseFileService>();
