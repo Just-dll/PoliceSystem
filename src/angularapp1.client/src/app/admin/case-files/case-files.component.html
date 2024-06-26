@@ -1,0 +1,7 @@
+<div *ngIf="caseFiles.length > 0; else noCases">
+    <app-case-file-preview *ngFor="let caseFile of caseFiles" [caseFile]="caseFile"></app-case-file-preview>
+  </div>
+  <ng-template #noCases>
+    <p>No case files found.</p>
+  </ng-template>
+  

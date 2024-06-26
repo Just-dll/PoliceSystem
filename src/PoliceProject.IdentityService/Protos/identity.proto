@@ -1,0 +1,32 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "PoliceProject.IdentityService.Grpc";
+
+package IdentityApi;
+
+service Identity {
+  rpc GetPersonRoles(GetPersonRolesRequest) returns (PersonRolesResponse) {}
+  rpc GetRandomPersonInRole(GetRandomPersonInRoleRequest) returns (PersonResponse) {}
+}
+
+message GetPersonRolesRequest {	
+  int32 person_id = 1;
+}
+
+message PersonRolesResponse {
+  repeated Role roles = 1;
+}
+
+message Role {
+  string name = 1;
+}
+
+message GetRandomPersonInRoleRequest {
+  string roleName = 1;
+}
+
+message PersonResponse {
+  int32 person_id = 1;
+  string username = 2;
+  string email = 3;
+}

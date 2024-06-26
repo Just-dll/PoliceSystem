@@ -1,0 +1,5 @@
+<div class="case-file-card" (click)="viewCaseFile()">
+  <h3>{{ caseFile.type }}</h3>
+  <p><strong>Initiation Date:</strong> {{ caseFile.initiationDate }}</p>
+  <p><strong>Suspects:</strong> {{ formatSuspects() }}</p>
+</div>
