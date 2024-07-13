@@ -9,7 +9,7 @@ using System.Security.Claims;
 namespace AngularApp1.Server.Controllers
 {
     [Authorize]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class PolicePositionsController : ControllerBase
     {

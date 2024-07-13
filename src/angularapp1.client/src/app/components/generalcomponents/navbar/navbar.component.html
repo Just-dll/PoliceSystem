@@ -3,14 +3,13 @@
     
     @if(isAuth) {
         <a href="/admin/tickets">Tickets</a>
+        @if(roleService.hasAnyRole([Roles.JUDGE, Roles.PROSECUTOR])) {
+            <a href="/admin/caseFiles">CaseFiles</a>
+        }
         <a href="/admin" class="split">Admin</a>
     }
     @else {
         <a href="/login" class="split">Login</a>
-    }
-
-    @if(roleService.hasAnyRole([Roles.JUDGE, Roles.PROSECUTOR])) {
-        <a href="/admin/caseFiles">CaseFiles</a>
     }
 
     <input type="text" placeholder="Search..">

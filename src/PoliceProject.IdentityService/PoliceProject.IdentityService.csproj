@@ -33,7 +33,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AngularApp1.ServiceDefaults\AngularApp1.ServiceDefaults.csproj" />
-    <ProjectReference Include="..\PoliceProject.Main\PoliceProject.Main.csproj" />
   </ItemGroup>
 
 </Project>

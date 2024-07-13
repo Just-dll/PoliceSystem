@@ -16,6 +16,7 @@ import { PrettyPipe } from './pretty.pipe';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './auth.interceptor';
 import { CaseFilePreviewComponent } from './admin/case-files/case-file-preview/case-file-preview.component';
+import { CommonModule } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { CaseFilePreviewComponent } from './admin/case-files/case-file-preview/c
     AppRoutingModule,
     NavbarComponent,
     FooterComponent,
-    FormsModule
+    FormsModule,
+    CommonModule
   ],
   providers: [
     {

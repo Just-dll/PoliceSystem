@@ -1,6 +1,7 @@
 ﻿using AngularApp1.Server.Data;
 using AutoFixture;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Moq;
 using PoliceDAL.Entities;
 using PoliceDAL.Interfaces;
@@ -11,32 +12,48 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace DataAccessTests
 {
     public class CaseFileTests
     {
-        PolicedatabaseContext context;
-        public CaseFileTests()
+        [Theory]
+        [InlineData(5)]
+        public async Task GetAssignedCaseFiles_GetMyCaseFilesRequest_ListOfAssignedCaseFiles(int personId)
         {
-            var contextOptionsBuilder = new DbContextOptionsBuilder<PolicedatabaseContext>()
-                .UseInMemoryDatabase("PoliceDatabase")
-                .Options;
-
-            context = new PolicedatabaseContext(contextOptionsBuilder);
-            context.Database.EnsureDeleted();
-            context.Database.EnsureCreated();
-            UserTestHelper.SeedData(context);
-        }
-        [Fact]
-        public async void GetAssignedCaseFiles_GetMyCaseFilesRequest_ListOfAssignedCaseFiles()
-        {
-            // Assert
-            var repository = new CaseFileRepository(context);
-            // Act
-            var casefiles = await repository.GetAssignedCaseFilesAsync(6);
             // Arrange
-            Assert.NotNull(casefiles);
+            using var context = new PolicedatabaseContext(UserTestHelper.GetDbContextOptions());
+            var repository = new CaseFileRepository(context);
+
+            // Act
+            var casefiles = await repository.GetAssignedCaseFilesAsync(personId);
+
+            // Assert
+            Assert.Equal(casefiles, UserTestHelper.CaseFiles.Where(x => x.CaseFileConnections.Any(x => x.PersonId == personId)), new CaseFileComparer());
+        }
+
+        [Fact]
+        public async Task GetCaseFiles_GetCaseFilesRequest_ListOfCaseFiles()
+        {
+            using var context = new PolicedatabaseContext(UserTestHelper.GetDbContextOptions());
+            var repository = new CaseFileRepository(context);
+
+            var casefiles = await repository.GetAllAsync();
+
+            Assert.Equal(casefiles, UserTestHelper.CaseFiles, new CaseFileComparer());
+        }
+
+        [Theory]
+        [InlineData(5)]
+        public async Task GetCaseFile_GetCaseFileRequest_CaseFile(int caseFileId)
+        {
+            using var context = new PolicedatabaseContext(UserTestHelper.GetDbContextOptions());
+            var repository = new CaseFileRepository(context);
+
+            var casefile = await repository.GetByIdAsync(caseFileId);
+
+            Assert.Equal(casefile, UserTestHelper.CaseFiles[caseFileId - 1], new CaseFileComparer());
         }
     }
 }

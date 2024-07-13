@@ -16,7 +16,6 @@ export class LoginComponent {
   login(): void {
     this.authService.login(this.email, this.password).subscribe((loggedIn: boolean) => {
       if (loggedIn) {
-        console.log(loggedIn);
         this.router.navigate(['/admin'])
         console.log('Login successful');
       } else {

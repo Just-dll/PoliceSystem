@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 namespace AngularApp1.Server.Controllers
 {
     [Authorize]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class PersonController : ControllerBase
     {

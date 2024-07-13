@@ -149,10 +149,5 @@ public partial class PolicedatabaseContext : DbContext
         OnModelCreatingPartial(modelBuilder);
     }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=PoliceProject;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False");
-        base.OnConfiguring(optionsBuilder);
-    }
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

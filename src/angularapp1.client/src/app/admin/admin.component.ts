@@ -23,7 +23,7 @@ export class AdminComponent implements OnInit {
   ngOnInit() {
     this.fetchUser();
     this.fetchUserDrivingLicense();
-    this.initializeSSE();
+    //this.initializeSSE();
   }
 
   searchTerm: string = '';
@@ -50,7 +50,7 @@ export class AdminComponent implements OnInit {
   }
 
   private searchUser(query: string) {
-    this.http.get<UserSearchResult[]>(`${environment.baseApiUrl}/api/Person/SearchByQuery`, { params: { query } })
+    this.http.get<UserSearchResult[]>(`identity/Person/SearchByQuery`, { params: { query } })
       .subscribe(
         (data) => {
           console.log('Search results:', data);
@@ -64,7 +64,7 @@ export class AdminComponent implements OnInit {
   }
 
   fetchUserDrivingLicense() {
-    this.http.get<DrivingLicense>(`${environment.baseApiUrl}/api/DrivingLicense/getmydrivinglicense`)
+    this.http.get<DrivingLicense>(`api/DrivingLicense/getmydrivinglicense`)
       .subscribe(
         (data) => {
           this.drivingLicense = data;
@@ -78,7 +78,7 @@ export class AdminComponent implements OnInit {
   
 
   fetchUser() {
-    this.http.get(`${environment.baseApiUrl}/api/Person/getMyself`)
+    this.http.get(`identity/Person/getMyself`)
       .subscribe(
         (data) => {
           this.userEntity = data;

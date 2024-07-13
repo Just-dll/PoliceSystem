@@ -32,9 +32,9 @@ var mainApi = builder.AddProject<Projects.PoliceProject_Main>("policeproject-mai
     .WithEnvironment("Notification__Url", notificationServiceApi.GetEndpoint("https"));
 
 var angularWebApp = builder.AddNpmApp("WebApp", "../angularapp1.client")
-    .WithReference(identityApi)
-    .WithReference(mainApi)
-    .WithReference(notificationServiceApi)
+    .WithEnvironment("Identity__Url", identityEndpoint)
+    .WithEnvironment("Main__Url", mainApi.GetEndpoint("https"))
+    .WithEnvironment("Notification__Url", notificationServiceApi.GetEndpoint("https"))
     .PublishAsDockerFile();
 
 identityApi

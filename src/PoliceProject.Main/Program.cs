@@ -151,7 +151,6 @@ namespace AngularApp1.Server
             builder.Services.AddScoped<IDrivingLicenseService, DrivingLicenseService>();
             builder.Services.AddScoped<IMapper, Mapper>(services =>
             {
-                var userManager = services.GetService<UserManager<User>>() ?? throw new ArgumentNullException();
                 var myProfile = new AutomapperProfile();
                 var configuration = new MapperConfiguration(cfg => cfg.AddProfile(myProfile));
                 return new Mapper(configuration);

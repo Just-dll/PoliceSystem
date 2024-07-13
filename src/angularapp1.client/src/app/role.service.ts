@@ -17,7 +17,7 @@ export class RoleService {
   }
 
   getUserRoles(): Observable<string[]> {
-    return this.http.get<string[]>(`${environment.baseApiUrl}/api/PolicePositions/getMyPositions`);
+    return this.http.get<string[]>(`identity/PolicePositions/getMyPositions`);
   }
   
 }

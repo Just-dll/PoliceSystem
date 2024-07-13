@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../environments/environment.development';
 
 @Injectable({
@@ -15,14 +15,13 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<boolean> {
-    return this.http.post<any>(`${environment.baseApiUrl}/login?useCookies=true`, { email, password }, { observe: 'response' })
+    return this.http.post<any>(`/identity/login?useCookies=true`, { email, password }, { observe: 'response' })
       .pipe(
         map(response => {
-          if(response) {
+          if (response) {
             this.loggedIn.next(true);
             return true;
-          }
-          else {
+          } else {
             console.log(response);
             this.loggedIn.next(false);
             return false;
@@ -35,17 +34,22 @@ export class AuthService {
         })
       );
   }
-
+  
   logout(): void {
     this.loggedIn.next(false);
-    this.http.post(`${environment.baseApiUrl}/logout`, {}).subscribe(() => {
+    this.http.post(`identity/logout`, {}).subscribe(() => {
       // Additional cleanup if needed
     });
   }
 
   isLoggedIn(): Observable<boolean> {
-    this.checkToken()
-    return this.loggedIn.asObservable();
+    return this.checkToken().pipe(
+      tap((val: boolean) => {
+        console.log('Token check result:', val);
+        this.loggedIn.next(val);
+      }),
+      switchMap(() => this.loggedIn.asObservable())
+    );
   }
 
   private setSession(authResult: any): void {
@@ -57,32 +61,20 @@ export class AuthService {
     }, expiresIn - 60000); // Refresh the token 1 minute before it expires
   }
 
-  private checkToken(): boolean {
-    var state = false;
-    this.http.get(`${environment.baseApiUrl}/api/Person/getMyself`)
-      .subscribe(
-        data => {
-          if (data) {
-            this.loggedIn.next(true);
-            state = true;
-            console.log(data);
-            return true;
-          } else {
-            this.loggedIn.next(false);
-            return false;
-          }
-        },
-        error => {
-          console.error('Error fetching user data:', error);
-          this.loggedIn.next(false);
-        }
-      );
-      return state;
+  checkToken(): Observable<boolean> {
+    return this.http.get<any>(`identity/Person/getMyself`).pipe(
+      map(data => {
+        return !!data;
+      }),
+      catchError(error => {
+        console.error('Error fetching user data:', error);
+        return of(false);
+      })
+    );
   }
 
-
   private refreshToken(): Observable<any> {
-    return this.http.post<any>(`${environment.baseApiUrl}/refresh`, {})
+    return this.http.post<any>(`identity/refresh`, {})
       .pipe(
         switchMap(response => {
           if (response && response.accessToken) {

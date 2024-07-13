@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../../auth.service';
 import { RoleService } from '../../../role.service';
 import { Roles } from '../../../roles';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
@@ -22,7 +23,6 @@ export class NavbarComponent implements OnInit {
     });
     this.roleService.getUserRoles().subscribe((things: string[]) => {
       this.userRoles = things;
-      console.log(things);
     })
   }
 }

@@ -16,7 +16,7 @@ export class ForgotComponent {
     console.log(this.email);
     // Here you can make an HTTP request to send the email
     // Replace 'your-api-endpoint' with your actual API endpoint
-    this.http.post(`${environment.baseApiUrl}/forgotPassword`, { email: this.email }).subscribe(
+    this.http.post(`identity/forgotPassword`, { email: this.email }).subscribe(
       (response) => {
         console.log('Email sent successfully', response);
         // Optionally, you can show a success message to the user
