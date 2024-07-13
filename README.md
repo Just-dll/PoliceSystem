@@ -24,11 +24,10 @@ This project is a comprehensive system designed to manage the workflow of the ju
 
 4. **User Authentication and Authorization**
     - Uses cookies for authentication and authorization.
-    - Retrieves user roles via a gRPC service connected to Identity Server.
-    - Handles login through `{environment.baseApiUrl}/login`.
+    - Interaction with Identity service through gRPC.
 
 6. **Microservices**
-    - Considers the use of .NET Aspire as orchestrator.
+    - Considers the use of .NET Aspire as an orchestrator.
 
 ## Technologies
 
