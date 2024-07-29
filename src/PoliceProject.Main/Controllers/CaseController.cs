@@ -1,6 +1,7 @@
-﻿using AngularApp1.Server.Models;
-using BLL.Interfaces;
+﻿using BLL.Interfaces;
 using BLL.Models;
+using BLL.Services;
+using MainService.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -8,102 +9,131 @@ using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Net;
 
-namespace AngularApp1.Server.Controllers
+namespace MainService.Controllers;
+
+[Authorize(Roles = "Prosecutor, Judge")]
+[Route("[controller]")]
+[ApiController]
+public class CaseController : ControllerBase
 {
-    [Authorize(Roles = "Prosecutor, Judge")]
-    [Route("api/[controller]")]
-    [ApiController]
-    public class CaseController : ControllerBase
+    private readonly ICaseFileService _service;
+    private readonly PdfGenerator generator;
+    public CaseController(ICaseFileService service, PdfGenerator pdfGenerator)
     {
-        private readonly ICaseFileService _service;
-        private readonly UserManager<User> _userManager;    
-        public CaseController(ICaseFileService service, UserManager<User> manager)
+        _service = service;
+        generator = pdfGenerator;
+    }
+
+    [HttpGet("{caseFileId}")]
+    public async Task<ActionResult<CaseFileModel?>> GetCaseFile(int caseFileId)
+    {
+        try
         {
-            _service = service;
-            _userManager = manager;
+            var casefile = await _service.GetByIdAsync(caseFileId);
+            if (casefile == null)
+            {
+                return NotFound();
+            }
+            return Ok(casefile);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+
+    [HttpGet("{caseFileId}/pdf")]
+    public async Task<IActionResult> GetCaseFilePdf(int caseFileId)
+    {
+        // Retrieve the CaseFileModel based on the provided id
+        var caseFile = await _service.GetByIdAsync(caseFileId);
+        if (caseFile == null)
+        {
+            return NotFound();
         }
 
-        [HttpGet]
-        public async Task<ActionResult<CaseFileModel?>> GetCaseFile(int caseFileId)
+        var pdfBytes = generator.GenerateCaseFilePdf(caseFile);
+        return File(pdfBytes, "application/pdf", "CaseFile.pdf");
+    }
+
+    [HttpGet("mine")] 
+    public async Task<ActionResult<IEnumerable<CaseFilePreview>?>> GetMyCaseFiles()
+    {
+        try
         {
-            try
+            var identifier = HttpContext.GetUserLocalIdentifier();
+            if(!identifier.HasValue)
             {
-                var casefile = await _service.GetByIdAsync(caseFileId);
-                if (casefile == null)
-                {
-                    return NotFound();
-                }
-                return Ok(casefile);
+                return Unauthorized();
             }
-            catch (Exception ex)
+            var caseFilePreviews = await _service.GetAssignedCaseFiles(identifier.Value);
+            if(caseFilePreviews == null)
             {
-                return StatusCode(500, ex.Message);
+                return NotFound();
             }
+            return Ok(caseFilePreviews);
         }
-        [HttpGet("mine")] 
-        public async Task<ActionResult<IEnumerable<CaseFilePreview>?>> GetMyCaseFiles()
+        catch(Exception)
         {
-            try
-            {
-                var user = await _userManager.GetUserAsync(HttpContext.User);
-                if(user == null)
-                {
-                    return Unauthorized();
-                }
-                var caseFilePreviews = await _service.GetAssignedCaseFiles(user.Id);
-                if(caseFilePreviews == null)
-                {
-                    return NotFound();
-                }
-                return Ok(caseFilePreviews);
-            }
-            catch(Exception)
-            {
-                return StatusCode(500);
-            }
+            return StatusCode(500);
+        }
+    
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<CaseFileModel>> PostCaseFile(CaseFileModel model)
+    {
+        try
+        {
+            await _service.AddAsync(model);
+            return CreatedAtAction(nameof(PostCaseFile), model);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
         
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> PutCaseFile(int id, [FromBody] CaseFileModel ticket)
+    {
+        if (id != ticket.Id)
+        {
+            return BadRequest();
         }
 
-        [HttpPost]
-        public async Task<ActionResult<CaseFileModel>> PostCaseFile(CaseFileModel model)
+        try
         {
-            try
+            await _service.UpdateAsync(ticket);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (await _service.GetByIdAsync(id) == null)
             {
-                await _service.AddAsync(model);
-                return CreatedAtAction(nameof(PostCaseFile), model);
+                return NotFound();
             }
-            catch (Exception ex)
+            else
             {
-                return StatusCode(500, ex.Message);
+                throw;
             }
-            
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCaseFile(int id, CaseFileModel ticket)
+        return NoContent();
+    }
+
+    [Authorize(Roles = "Judge")]
+    [HttpDelete]
+    public async Task<IActionResult> DeleteCaseFile(int id)
+    {
+        try
         {
-            if (id != ticket.Id)
-            {
-                return BadRequest();
-            }
-
-            try
-            {
-                await _service.UpdateAsync(ticket);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (await _service.GetByIdAsync(id) == null)
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
+            await _service.DeleteAsync(id);
             return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
         }
     }
 }

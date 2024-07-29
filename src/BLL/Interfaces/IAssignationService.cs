@@ -1,10 +1,10 @@
-﻿using AngularApp1.Server.Models;
+﻿using BLL.Models;
+using DAL.Entities;
 
-namespace BLL.Interfaces
+namespace BLL.Interfaces;
+
+public interface IAssignationService
 {
-    public interface IAssignationService
-    {
-        Task<int> Assign(int caseFileId, JudiciaryPosition position);
-        Task Assign(int caseFileId, int personId);
-    }
+    Task<CaseFileConnectionModel> Assign(int caseFileId, JudiciaryPosition position);
+    Task<CaseFileConnectionModel> Assign(int caseFileId, int personId, int connectionTypeId = 1);
 }

@@ -1,14 +1,8 @@
 ﻿using BLL.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace BLL.Interfaces
+namespace BLL.Interfaces;
+
+public interface IDrivingLicenseService : IService<DrivingLicenseModel>
 {
-    public interface IDrivingLicenseService : IService<DrivingLicenseModel>
-    {
-        Task<DrivingLicenseModel?> GetPersonDrivingLicense(int personId);
-    }
+    Task<DrivingLicenseModel?> GetPersonDrivingLicense(int personId);
 }

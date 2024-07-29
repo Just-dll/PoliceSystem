@@ -1,10 +1,9 @@
-﻿namespace AngularApp1.Server.Extensions
+﻿namespace IdentityService.Extensions;
+
+public static class PolicySeedExtension
 {
-    public static class PolicySeedExtension
+    public static IServiceCollection AddPolicies(this IServiceCollection services)
     {
-        public static IServiceCollection AddPolicies(this IServiceCollection services)
-        {
-            return services;
-        }
+        return services;
     }
 }

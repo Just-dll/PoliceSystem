@@ -1,25 +1,24 @@
-﻿using Microsoft.AspNetCore.Identity;
-using PoliceProject.IdentityService.Entities;
+﻿using IdentityService.Entities;
+using Microsoft.AspNetCore.Identity;
 
-namespace AngularApp1.Server.Extensions
+namespace IdentityService.Extensions;
+
+public static class RoleSeedExtension
 {
-    public static class RoleSeedExtension
-    {
-        private static readonly string[] Roles = { "Policeman", "OrganizationAdministrator", "Prosecutor", "Judge", "Civilian", "Attourney" };
+    private static readonly string[] Roles = { "Policeman", "OrganizationAdministrator", "Prosecutor", "Judge", "Civilian", "Attourney" };
 
-        public static async Task SeedRolesAsync(IServiceProvider serviceProvider)
+    public static async Task SeedRolesAsync(IServiceProvider serviceProvider)
+    {
+        var roleManager = serviceProvider.GetRequiredService<RoleManager<Position>>();
+        foreach (var role in Roles)
         {
-            var roleManager = serviceProvider.GetRequiredService<RoleManager<Position>>();
-            foreach (var role in Roles)
+            if (!await roleManager.RoleExistsAsync(role))
             {
-                if (!await roleManager.RoleExistsAsync(role))
+                await roleManager.CreateAsync(new Position()
                 {
-                    await roleManager.CreateAsync(new Position()
-                    {
-                        Name = role,
-                        NormalizedName = role.ToUpper()
-                    });
-                }
+                    Name = role,
+                    NormalizedName = role.ToUpper()
+                });
             }
         }
     }

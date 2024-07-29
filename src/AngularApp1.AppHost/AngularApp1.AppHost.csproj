@@ -6,10 +6,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsAspireHost>true</IsAspireHost>
+    <UserSecretsId>ad1cb637-1092-4df9-8bf2-fa83598f0f2d</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="8.0.0-preview.6.24214.1" />
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="8.0.0" />
     <PackageReference Include="Aspire.Hosting.NodeJs" Version="8.0.1" />
     <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="8.0.1" />
     <PackageReference Include="Aspire.Hosting.SqlServer" Version="8.0.1" />
@@ -18,9 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PoliceProject.IdentityService\PoliceProject.IdentityService.csproj" />
-    <ProjectReference Include="..\PoliceProject.Main\PoliceProject.Main.csproj" />
-    <ProjectReference Include="..\PoliceProject.NotificationService\PoliceProject.NotificationService.csproj" />
+    <ProjectReference Include="..\PoliceProject.IdentityService\IdentityService.csproj" />
+    <ProjectReference Include="..\PoliceProject.Main\MainService.csproj" />
+    <ProjectReference Include="..\PoliceProject.NotificationService\NotificationService.csproj" />
   </ItemGroup>
 
 </Project>

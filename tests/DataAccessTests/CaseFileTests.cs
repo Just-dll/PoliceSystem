@@ -1,11 +1,9 @@
-﻿using AngularApp1.Server.Data;
-using AutoFixture;
+﻿using AutoFixture;
+using DAL.Data;
+using DAL.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Moq;
-using PoliceDAL.Entities;
-using PoliceDAL.Interfaces;
-using PoliceDAL.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +29,15 @@ namespace DataAccessTests
 
             // Assert
             Assert.Equal(casefiles, UserTestHelper.CaseFiles.Where(x => x.CaseFileConnections.Any(x => x.PersonId == personId)), new CaseFileComparer());
+        }
+
+        [Theory]
+        [InlineData(2)]
+        public async Task GetCaseFileConnections_GetCaseFileConnections_LitsOfConnections(int caseFileId)
+        {
+            using var context = new PolicedatabaseContext(UserTestHelper.GetDbContextOptions());
+            var repository = new CaseFileRepository(context);
+
         }
 
         [Fact]

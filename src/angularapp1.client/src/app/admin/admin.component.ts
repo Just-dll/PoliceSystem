@@ -4,6 +4,7 @@ import { DrivingLicense } from './drivinglicenses/drivinglicense/drivinglicense'
 import { Router } from '@angular/router';
 import { UserSearchResult } from './usersearchresult';
 import { environment } from '../../environments/environment.development';
+import { RoleService } from '../role.service';
 
 @Component({
   selector: 'app-admin',
@@ -18,7 +19,7 @@ export class AdminComponent implements OnInit {
   showResults: boolean = false;
   eventSource: EventSource | undefined;
 
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(private http: HttpClient, private router: Router, private roleService : RoleService) { }
 
   ngOnInit() {
     this.fetchUser();
@@ -75,7 +76,12 @@ export class AdminComponent implements OnInit {
       );
   }
 
-  
+  hasAnyRole(roles : string[]) : boolean {
+    this.roleService.hasAnyRole(roles).subscribe(e => {
+      return e;
+    })
+    return false;
+  } 
 
   fetchUser() {
     this.http.get(`identity/Person/getMyself`)

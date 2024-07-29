@@ -5,15 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BLL.Models
+namespace BLL.Models;
+
+public class CaseFileModel : BaseModel
 {
-    public class CaseFileModel : BaseModel
-    {
-        public required string Type { get; set; }
-        public DateOnly InitiationDate { get; internal set; }
-        public UserSearchModel? Prosecutor { get; internal set; }
-        public UserSearchModel? Judge { get; internal set; }
-        public ICollection<ReportModel> Reports { get; internal set; } = [];
-        public ICollection<WarrantModel> Warrants { get; internal set; } = [];
-    }
+    public required string Type { get; set; }
+    public DateOnly InitiationDate { get; internal set; }
+    public Dictionary<string, IEnumerable<UserSearchModel>> ConnectedPersons { get; internal set; } = [];
+    public ICollection<ReportModel> Reports { get; internal set; } = [];
+    public ICollection<WarrantModel> Warrants { get; internal set; } = [];
 }

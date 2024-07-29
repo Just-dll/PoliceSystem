@@ -1,7 +1,3 @@
-using AngularApp1.Server.Data;
-using AngularApp1.Server.Models;
-using AngularApp1.Server.Services;
-using AngularApp1.Server;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -22,8 +18,6 @@ using BLL;
 using Microsoft.AspNetCore.Authentication;
 using BLL.Services;
 using BLL.Interfaces;
-using PoliceDAL.Interfaces;
-using PoliceDAL.Repositories;
 using Hangfire;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authentication.BearerToken;
@@ -34,13 +28,18 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using System.Security.Principal;
 using BLL.Grpc;
+using DAL.Data;
+using DAL.Interfaces;
+using DAL.Repositories;
+using QuestPDF.Infrastructure;
 
-namespace AngularApp1.Server
+namespace MainService
 {
     public class Program
     {
         public static void Main(string[] args)
         {
+            //QuestPDF.Settings.License = LicenseType.Community;
             var builder = WebApplication.CreateBuilder(args);
             builder.AddServiceDefaults();
             var config = builder.Configuration;
@@ -61,24 +60,24 @@ namespace AngularApp1.Server
             var dbConnectionStrings = config.GetSection("ConnectionStrings");
             builder.Services.AddDbContext<PolicedatabaseContext>(options =>
             {
-                options.UseSqlServer(dbConnectionStrings.GetSection("PoliceDB").Value);
+                options.UseSqlServer(dbConnectionStrings.GetSection("main").Value);
             }, ServiceLifetime.Transient);
 
             //builder.Services.AddIdentityApiEndpoints<User>()
             //    .AddRoles<Position>()
             //    .AddEntityFrameworkStores<PolicedatabaseContext>(); // to Identity
             // Use AddAuthorizationBuilder to configure authorization policies
-            //builder.Services.AddAuthorizationBuilder()
-            //    .AddPolicy("RequirePolicePosition", policy =>
-            //    {
-            //        policy.RequireRole("Policeman");
-            //        policy.RequireAuthenticatedUser();
-            //    })
-            //    .AddPolicy("RequirePoliceAdminPosition", policy =>
-            //    {
-            //        policy.RequireRole("Policeman", "OrganizationAdministrator");
-            //        policy.RequireAuthenticatedUser();
-            //    });
+            builder.Services.AddAuthorizationBuilder()
+                .AddPolicy("RequirePolicePosition", policy =>
+                {
+                    policy.RequireRole("Policeman");
+                    policy.RequireAuthenticatedUser();
+                })
+                .AddPolicy("RequirePoliceAdminPosition", policy =>
+                {
+                    policy.RequireRole("Policeman", "OrganizationAdministrator");
+                    policy.RequireAuthenticatedUser();
+                });
 
             var smtpConfig = config.GetSection("Mail");
             var smtpCred = smtpConfig.GetSection("credential");
@@ -109,14 +108,18 @@ namespace AngularApp1.Server
                 options.RequireHttpsMetadata = false;
                 options.Scope.Add("openid");
                 options.Scope.Add("cases");
+                options.Scope.Add("roles");
                 options.SaveTokens = true;
+                options.ClaimActions.MapJsonKey("role", "role", "role");
+                options.TokenValidationParameters.NameClaimType = "name";
+                options.TokenValidationParameters.RoleClaimType = "role";
             });
 
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAllOrigins", builder =>
                 {
-                    builder.WithOrigins("https://localhost:4200", "http://localhost:4200")
+                    builder.WithOrigins("https://localhost:4200", "http://localhost:4200", identitySection["Url"])
                            .AllowAnyMethod()
                            .AllowAnyHeader()
                            .AllowCredentials();
@@ -149,23 +152,30 @@ namespace AngularApp1.Server
 
             builder.Services.AddScoped<ITicketService, TicketService>();
             builder.Services.AddScoped<IDrivingLicenseService, DrivingLicenseService>();
+            builder.Services.AddScoped<IUserService, IdentityService>();
             builder.Services.AddScoped<IMapper, Mapper>(services =>
             {
-                var myProfile = new AutomapperProfile();
+                var myProfile = new AutomapperProfile(services.GetRequiredService<Identity.IdentityClient>());
                 var configuration = new MapperConfiguration(cfg => cfg.AddProfile(myProfile));
                 return new Mapper(configuration);
             });
-            //builder.Services.AddTransient<IEmailSender<User>, EmailSender>(); // To identityService
+            builder.Services.AddScoped<PdfGenerator>();
+            //builder.Services.AddAutoMapper(cfg =>
+            //{
+            //    cfg.AddProfile<AutomapperProfile>();
+            //});
+            //builder.Services.AddTransient<IEmailSender<User>, EmailSender>(); // To identityService or notificationService
             builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
             builder.Services.AddTransient<ICaseFileService, CaseFileService>();
             builder.Services.AddTransient<IAssignationService, AssignationService>();
             builder.Services.AddTransient<IService<ReportModel>, ReportService>();
+            
+            //builder.Services.AddHangfire(x =>
+            //{
+            //    x.UseSqlServerStorage(dbConnectionStrings.GetSection("hangfire").Value);
+            //});
+            //builder.Services.AddHangfireServer();
 
-            builder.Services.AddHangfire(x =>
-            {
-                x.UseSqlServerStorage(builder.Configuration.GetConnectionString("hangfire"));
-            });
-            builder.Services.AddHangfireServer();
             // Define a CORS policy
 
             var app = builder.Build();
@@ -183,16 +193,18 @@ namespace AngularApp1.Server
 
             app.UseHttpsRedirection();
             app.UseCookiePolicy();
-            app.UseAuthentication();
 
             // Apply the CORS policy
             app.UseCors("AllowAllOrigins");
 
+            app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseMiddleware<IdentityCheckerMiddleware>();
+
             app.MapControllers();
 
             app.MapFallbackToFile("/index.html");
-
 
             app.Run();
         }

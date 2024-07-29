@@ -1,20 +1,13 @@
-﻿using AngularApp1.Server.Data;
-using AngularApp1.Server.Models;
-using AutoMapper;
+﻿using AutoMapper;
 using BLL.Models;
-using Microsoft.AspNetCore.Identity;
-using PoliceDAL.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using BLL.Grpc;
+using DAL.Entities;
 
 namespace BLL
 {
     public class AutomapperProfile : Profile
     {
-        public AutomapperProfile()
+        public AutomapperProfile(Identity.IdentityClient identityClient)
         {
             CreateMap<DrivingLicense, DrivingLicenseModel>()
                 .ForMember(dlm => dlm.DriverId, dl => dl.MapFrom(x => x.DriverId))
@@ -23,7 +16,12 @@ namespace BLL
                 .ReverseMap();
 
             CreateMap<User, UserModel>()
-                .ForMember(um => um.Tickets, u => u.MapFrom(x => x.Tickets));
+                .ForMember(um => um.Tickets, u => u.MapFrom(x => x.Tickets))
+                .ForMember(um => um.Warrants, u => u.MapFrom(x => x.WarrantsOn))
+                .ForMember(um => um.Reports, u => u.MapFrom(x => x.Reports));
+
+            CreateMap<UserModel, UserSearchModel>()
+                .ReverseMap();
 
             CreateMap<Ticket, TicketModel>()
                 .ForMember(tm => tm.ViolatorId, t => t.MapFrom(x => x.ViolatorId))
@@ -31,11 +29,30 @@ namespace BLL
                 .ForMember(tm => tm.Description, t => t.MapFrom(x => x.Report.Description));
 
             CreateMap<User, UserSearchModel>();
+                /*.AfterMap(async (user, userModel, context) =>
+                {
+                    var tempUser = await identityClient.GetPersonAsync(new() { PersonId = user.IdentityId });
+                    userModel.Email = tempUser.Email;
+                    userModel.Name = tempUser.Username;
+                });*/
 
             CreateMap<CaseFile, CaseFileModel>()
                 .ForMember(cfm => cfm.Warrants, cf => cf.MapFrom(cf => cf.Warrants))
                 .ForMember(cfm => cfm.Reports, cf => cf.MapFrom(cf => cf.Reports))
-                .ForMember(cfm => cfm.Type, cf => cf.MapFrom(cf => (CaseFileTypeEnum)cf.CaseFileTypeId));
+                .ForMember(cfm => cfm.Type, cf => cf.MapFrom(cf => (CaseFileTypeEnum)cf.CaseFileTypeId))
+                .AfterMap((src, dest, context) =>
+                {
+                    dest.ConnectedPersons = src.CaseFileConnections
+                        .GroupBy(cfc => cfc.CaseFileConnectionType.Value)
+                        .ToDictionary(
+                            g => g.Key,
+                            g => g.Select(cfc => context.Mapper.Map<UserSearchModel>(cfc.Person)).AsEnumerable()
+                        );
+                });
+
+            CreateMap<PersonResponse, UserModel>()
+                .ForMember(um => um.Name, x => x.MapFrom(pr => pr.Email))
+                .ForMember(um => um.Id, x => x.MapFrom(pr => pr.PersonId));
 
             CreateMap<CaseFileModel, CaseFile>()
                 .ForMember(cf => cf.Reports, cfm => cfm.Ignore())
@@ -59,6 +76,10 @@ namespace BLL
                 .ForMember(cfp => cfp.Suspects, cf => cf.MapFrom(x => x.Warrants.Select(w => w.Suspect)));
 
             CreateMap<Warrant, WarrantModel>();
+
+            CreateMap<CaseFileConnection, CaseFileConnectionModel>()
+                .ForMember(cfcm => cfcm.TypeOfConnection, cfc => cfc.MapFrom(x => x.CaseFileConnectionType.Value))
+                .ForMember(cfcm => cfcm.ConnectedPerson, cfc => cfc.MapFrom(x => x.Person));
 
         }
 

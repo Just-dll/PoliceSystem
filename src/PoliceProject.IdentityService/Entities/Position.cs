@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace PoliceProject.IdentityService.Entities
+namespace IdentityService.Entities;
+
+public class Position : IdentityRole<int>
 {
-    public class Position : IdentityRole<int>
-    {
-    }
 }

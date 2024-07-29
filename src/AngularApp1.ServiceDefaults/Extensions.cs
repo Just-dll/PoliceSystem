@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
@@ -114,6 +115,7 @@ public static class Extensions
         return app;
     }
 
-    public static int GetPrincipalIdentifier(this ClaimsPrincipal claimsPrincipal) =>
-        int.Parse((claimsPrincipal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier) ?? throw new UnauthorizedAccessException()).Value);
+    public static int? GetPrincipalIdentifier(this ClaimsPrincipal claimsPrincipal) =>
+        int.TryParse(claimsPrincipal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value, out var id) ? id : null;
+
 }

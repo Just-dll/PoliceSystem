@@ -1,5 +1,4 @@
-﻿using AngularApp1.Server.Models;
-using PoliceDAL.Entities;
+﻿using DAL.Entities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;

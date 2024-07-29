@@ -4,9 +4,8 @@ import { UserSearchResult } from "../../usersearchresult";
 export interface CaseFileModel {
   id: number;
   type: string;
-  initiationDate: string; // Use string type to represent DateOnly
-  prosecutor?: UserSearchResult;
-  judge?: User;
+  initiationDate: string;
+  connectedPersons: { [key: string]: User[] };
   reports: ReportModel[];
   warrants: WarrantModel[];
 }

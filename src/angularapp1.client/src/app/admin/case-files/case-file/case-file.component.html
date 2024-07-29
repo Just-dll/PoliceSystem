@@ -1,8 +1,15 @@
 <div *ngIf="caseFile">
   <h1>{{ caseFile.type }}</h1>
   <p><strong>Initiation Date:</strong> {{ caseFile.initiationDate }}</p>
-  <p><strong>Prosecutor:</strong> {{ caseFile.prosecutor?.email }}</p>
-  <p><strong>Judge:</strong> {{ caseFile.judge?.email }}</p>
+  <h2>Connected Persons</h2>
+  <div *ngFor="let key of objectKeys(caseFile.connectedPersons)">
+    <h3>{{ key }}</h3>
+    <ul>
+      <li *ngFor="let person of caseFile.connectedPersons[key]">
+        {{ person.name }} ({{ person.email }})
+      </li>
+    </ul>
+  </div>
   <h2>Reports</h2>
   <ul>
     <li *ngFor="let report of caseFile.reports">{{ report.description }}</li>
@@ -12,12 +19,18 @@
   <div *ngIf="isReportFormOpen" class="report-form-card">
     <h2>Add New Report</h2>
     <form (ngSubmit)="submitReport()">
-      <label for="location">Reported Location:</label>
-      <input type="text" id="location" [(ngModel)]="newReport.reportedLocation" name="location" required>
-      <label for="description">Description:</label>
-      <input type="text" id="description" [(ngModel)]="newReport.description" name="description" required>
-      <button type="submit">Submit</button>
-      <button type="button" (click)="closeReportForm()">Cancel</button>
+      <div class="form-group">
+        <label for="location">Reported Location:</label>
+        <input type="text" id="location" [(ngModel)]="newReport.reportedLocation" name="location" required>
+      </div>
+      <div class="form-group">
+        <label for="description">Description:</label>
+        <textarea id="description" [(ngModel)]="newReport.description" name="description" required></textarea>
+      </div>
+      <div class="form-group">
+        <button type="submit">Submit</button>
+        <button type="button" (click)="closeReportForm()">Cancel</button>
+      </div>
     </form>
   </div>
 

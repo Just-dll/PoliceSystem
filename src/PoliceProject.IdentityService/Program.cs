@@ -1,12 +1,13 @@
 using Microsoft.AspNetCore.Authentication.Negotiate;
-using PoliceProject.IdentityService.Entities;
-using PoliceProject.IdentityService.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using AngularApp1.Server.Extensions;
-using PoliceProject.IdentityService.Grpc;
+using Microsoft.AspNetCore.Identity;
+using Duende.IdentityServer.AspNetIdentity;
+using IdentityService.Services;
+using IdentityService.Entities;
+using IdentityService.Data;
 
-namespace PoliceProject.IdentityService;
+namespace IdentityService;
 
 public class Program
 {
@@ -18,26 +19,33 @@ public class Program
         builder.Services.AddDbContext<PoliceProjectIdentityContext>(options =>
         {
             var identityConnectionString = builder.Configuration.GetConnectionString("identitydb");
-            options.UseSqlServer(identityConnectionString);
-        }, ServiceLifetime.Transient);
+            options.UseSqlServer(identityConnectionString, sqlServerOptions =>
+            {
+                sqlServerOptions.EnableRetryOnFailure(
+                    maxRetryCount: 5,
+                    maxRetryDelay: TimeSpan.FromSeconds(30),
+                    errorNumbersToAdd: null);
+            });
+        }, ServiceLifetime.Scoped);
 
-        builder.Services.AddIdentityApiEndpoints<User>()
+        builder.Services.AddIdentity<User, Position>().AddApiEndpoints()
+                //.AddIdentityApiEndpoints<User>()
                 .AddRoles<Position>()
                 .AddEntityFrameworkStores<PoliceProjectIdentityContext>();
 
         builder.Services.AddIdentityServer(options =>
         {
             options.UserInteraction.LoginUrl = "/login";
-        })      
+        })
             .AddInMemoryApiResources(Config.GetApiResources())
             .AddInMemoryApiScopes(Config.GetScopes())
             .AddInMemoryClients(Config.GetClients(builder.Configuration))
             .AddInMemoryIdentityResources(Config.GetResources())
             .AddAspNetIdentity<User>()
-            .AddTestUsers(Config.GetTestUsers());
-
+            .AddTestUsers(Config.GetTestUsers())
+            .AddProfileService<PoliceIdentityProfileService>();
         // Use AddAuthorizationBuilder to configure authorization policies
-        builder.Services.AddAuthorizationBuilder()  
+        builder.Services.AddAuthorizationBuilder()
             .AddPolicy("RequirePolicePosition", policy =>
             {
                 policy.RequireRole("Policeman");
@@ -73,6 +81,17 @@ public class Program
             options.FallbackPolicy = options.DefaultPolicy;
         });
 
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAllOrigins", corsBuilder =>
+            {
+                corsBuilder.WithOrigins("https://localhost:4200", builder.Configuration["MainApiClient"])
+                       .AllowAnyMethod()
+                       .AllowAnyHeader()
+                       .AllowCredentials();
+            });
+        });
+
         var app = builder.Build();
 
         app.MapDefaultEndpoints();
@@ -83,20 +102,17 @@ public class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
-        
+
         app.UseHttpsRedirection();
 
         app.MapIdentityApi<User>().AllowAnonymous();
 
-        //app.UseAuthentication();
+        app.UseCors("AllowAllOrigins");
+
         app.UseIdentityServer();
         app.UseAuthorization();
 
-        //using (var scope = app.Services.CreateScope())
-        //{
-        //    var services = scope.ServiceProvider;
-        //    await RoleSeedExtension.SeedRolesAsync(services);
-        //}
+        await SeedData.EnsureSeedDataAsync(app);
 
         app.MapGrpcService<Grpc.IdentityService>();
 

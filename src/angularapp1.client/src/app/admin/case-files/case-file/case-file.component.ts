@@ -19,10 +19,14 @@ export class CaseFileComponent {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.http.get<CaseFileModel>(`${environment.baseApiUrl}/api/Case?caseFileId=${id}`).subscribe((data: CaseFileModel) => {
+      this.http.get<CaseFileModel>(`/api/Case?caseFileId=${id}`).subscribe((data: CaseFileModel) => {
         this.caseFile = data;
       });
     }
+  }
+
+  objectKeys(obj: any): string[] {
+    return Object.keys(obj);
   }
 
   openReportForm(): void {
@@ -36,8 +40,7 @@ export class CaseFileComponent {
   submitReport(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id && this.newReport.reportedLocation && this.newReport.description) {
-      this.http.post<ReportModel>(`${environment.baseApiUrl}/api/Report`, {
-        caseFileId: id,
+      this.http.post<ReportModel>(`/api/Report?caseFileId=${id}`, {
         ...this.newReport
       }).subscribe((report: ReportModel) => {
         if (this.caseFile) {

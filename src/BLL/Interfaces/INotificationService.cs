@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace BLL.Interfaces;
 
-namespace BLL.Interfaces
+public interface INotificationService
 {
-    public interface INotificationService
-    {
-        Task Notify(int userId, string message);
-    }
+    Task Notify(int userId, string message);
 }

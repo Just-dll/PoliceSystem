@@ -4,14 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BLL.Models
+namespace BLL.Models;
+
+public class ReportModel : BaseModel
 {
-    public class ReportModel : BaseModel
-    {
-        public string? Description { get; set; }
-        public DateOnly DateOfReport { get; internal set; }
-        public string? ReportedLocation { get; set; }
-        public int ReporterId { get; set; }
-        public int? CaseFileId { get; set; }
-    }
+    public string? Description { get; set; }
+    public DateOnly DateOfReport { get; internal set; }
+    public string? ReportedLocation { get; set; }
+    public int ReporterId { get; set; }
+    public int? CaseFileId { get; set; }
 }

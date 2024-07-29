@@ -14,7 +14,7 @@ export class CaseFilesComponent implements OnInit {
   constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
-    this.http.get<CaseFilePreview[]>(`${environment.baseApiUrl}/api/Case/mine`).subscribe((data: CaseFilePreview[]) => {
+    this.http.get<CaseFilePreview[]>(`api/Case/mine`).subscribe((data: CaseFilePreview[]) => {
       this.caseFiles = data;
     });
   }

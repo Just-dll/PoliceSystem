@@ -19,7 +19,7 @@ export class TicketsComponent implements OnInit {
 
   fetchTickets() {
     
-    this.http.get<Ticket[]>(`${environment.baseApiUrl}/api/Tickets/myTickets`)
+    this.http.get<Ticket[]>(`/api/Tickets/myTickets`)
       .subscribe(
         (response) => {
           this.tickets = response;

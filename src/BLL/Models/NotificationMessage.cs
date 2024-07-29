@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BLL.Models
+namespace BLL.Models;
+
+public class NotificationMessage
 {
-    public class NotificationMessage
-    {
-        public Guid Id { get; } = Guid.NewGuid();
-        public int UserId { get; set; }
-        public string Message { get; set; } = default!;
-    }
+    public Guid Id { get; } = Guid.NewGuid();
+    public int UserId { get; set; }
+    public string Message { get; set; } = default!;
 }

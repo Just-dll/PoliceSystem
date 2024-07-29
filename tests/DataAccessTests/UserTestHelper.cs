@@ -1,7 +1,6 @@
-﻿using AngularApp1.Server.Data;
-using AngularApp1.Server.Models;
+﻿using DAL.Data;
+using DAL.Entities;
 using Microsoft.EntityFrameworkCore;
-using PoliceDAL.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,6 +31,14 @@ namespace DataAccessTests
             new CaseFileType { Id = 2, Value = "Criminal" }
         ];
 
+        public static List<CaseFileConnectionType> CaseFileConnectionTypes =>
+        [
+            new CaseFileConnectionType { Id = 1, Value = "Prosecutor" },
+            new CaseFileConnectionType { Id = 2, Value = "Suspect" },
+            new CaseFileConnectionType { Id = 2, Value = "Judge" },
+            new CaseFileConnectionType { Id = 2, Value = "Attourney" },
+            new CaseFileConnectionType { Id = 2, Value = "Witness" },
+        ];
         public static List<User> Users =>
         [
             //new User { Id = 0, IdentityId = 0 },
@@ -54,11 +61,11 @@ namespace DataAccessTests
         ];
         public static List<CaseFileConnection> CaseFileConnections =>
         [
-            new CaseFileConnection { Id = 1, CaseFileId = 1, PersonId = 1 },
-            new CaseFileConnection { Id = 2, CaseFileId = 2, PersonId = 2 },
-            new CaseFileConnection { Id = 3, CaseFileId = 3, PersonId = 3 },
-            new CaseFileConnection { Id = 4, CaseFileId = 4, PersonId = 4 },
-            new CaseFileConnection { Id = 5, CaseFileId = 5, PersonId = 5 },
+            new CaseFileConnection { Id = 1, CaseFileId = 1, PersonId = 1, CaseFileConnectionTypeId = 1 },
+            new CaseFileConnection { Id = 2, CaseFileId = 2, PersonId = 2, CaseFileConnectionTypeId = 1 },
+            new CaseFileConnection { Id = 3, CaseFileId = 3, PersonId = 3, CaseFileConnectionTypeId = 1 },
+            new CaseFileConnection { Id = 4, CaseFileId = 4, PersonId = 4, CaseFileConnectionTypeId = 1 },
+            new CaseFileConnection { Id = 5, CaseFileId = 5, PersonId = 5, CaseFileConnectionTypeId = 1 },
         ];
 
         public static List<Report> Reports => 

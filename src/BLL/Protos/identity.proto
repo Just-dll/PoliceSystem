@@ -5,11 +5,12 @@ option csharp_namespace = "BLL.Grpc";
 package IdentityApi;
 
 service Identity {
-  rpc GetPersonRoles(GetPersonRolesRequest) returns (PersonRolesResponse) {}
+  rpc GetPersonRoles(GetPersonRequest) returns (PersonRolesResponse) {}
   rpc GetRandomPersonInRole(GetRandomPersonInRoleRequest) returns (PersonResponse) {}
+  rpc GetPerson(GetPersonRequest) returns (PersonResponse) {}
 }
 
-message GetPersonRolesRequest {
+message GetPersonRequest {
   int32 person_id = 1;
 }
 

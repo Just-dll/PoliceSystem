@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\PoliceDAL\PoliceProject.DAL.csproj" />
+    <ProjectReference Include="..\..\src\DAL\DAL.csproj" />
   </ItemGroup>
 
   <ItemGroup>
